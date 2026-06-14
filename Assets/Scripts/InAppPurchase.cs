@@ -203,6 +203,10 @@ public class InAppPurchase : MonoBehaviour, IStoreListener
 	{
 	}
 
+	public void OnInitializeFailed(InitializationFailureReason error, string message)
+	{
+	}
+
 	public void OnPurchaseFailed(Product product, PurchaseFailureReason failureReason)
 	{
 	}

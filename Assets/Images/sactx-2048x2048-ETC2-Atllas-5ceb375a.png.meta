@@ -360,7 +360,7 @@ TextureImporter:
       213: 21300236
     second: VFXBoost2
   externalObjects: {}
-  serializedVersion: 10
+  serializedVersion: 13
   mipmaps:
     mipMapMode: 0
     enableMipMap: 0
@@ -377,9 +377,12 @@ TextureImporter:
     externalNormalMap: 0
     heightScale: 0.25
     normalMapFilter: 0
+    flipGreenChannel: 0
   isReadable: 0
   streamingMipmaps: 0
   streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
   grayScaleToAlpha: 0
   generateCubemap: 6
   cubemapConvolution: 0
@@ -411,11 +414,17 @@ TextureImporter:
   textureType: 8
   textureShape: 1
   singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
   maxTextureSizeSet: 0
   compressionQualitySet: 0
   textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 1
+  swizzle: 50462976
+  cookieLightType: 1
   platformSettings:
-  - serializedVersion: 2
+  - serializedVersion: 3
     buildTarget: DefaultTexturePlatform
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -425,8 +434,10 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: Android
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -436,8 +447,10 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 1
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: Standalone
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -447,8 +460,10 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 1
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: iPhone
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -458,8 +473,10 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 1
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
-  - serializedVersion: 2
+    forceMaximumCompressionQuality_BC6H_BC7: 1
+  - serializedVersion: 3
     buildTarget: WebGL
     maxTextureSize: 2048
     resizeAlgorithm: 0
@@ -469,7 +486,9 @@ TextureImporter:
     crunchedCompression: 0
     allowsAlphaSplitting: 0
     overridden: 0
+    ignorePlatformSupport: 0
     androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 1
   spriteSheet:
     serializedVersion: 2
     sprites:
@@ -6584,7 +6603,7 @@ TextureImporter:
       tessellationDetail: 0
       bones: []
       spriteID: 458405006d3e04c30bc8154b61951e11
-      internalID: 21300194
+      internalID: -4450187690458833534
       vertices: []
       indices: 
       edges: []
@@ -7089,9 +7108,127 @@ TextureImporter:
     edges: []
     weights: []
     secondaryTextures: []
-  spritePackingTag: 
+    nameFileIdTable:
+      Arrow: 21300046
+      Avatar 0: 21300210
+      Avatar 1: 21300140
+      Avatar 2: 21300230
+      Avatar 3: 21300208
+      Avatar 4: 21300112
+      Avatar 5: 21300134
+      Avatar 6: 21300124
+      Barrier: 21300058
+      Board: 21300034
+      Boost 1: 21300020
+      Boost 2: 21300022
+      Boost 3: 21300024
+      Boost 4: 21300180
+      Boost 5: 21300182
+      Boost 6: 21300184
+      Border: 21300100
+      Box: 21300194
+      Bubble: 21300144
+      Button 1: 21300018
+      Button 2: 21300012
+      Button 3: 21300014
+      Button 4: 21300088
+      Button 5: 21300016
+      Cabin: 21300072
+      Card 1: 21300150
+      Card 2: 21300168
+      Cloud: 21300028
+      Coin 1: 21300186
+      Coin 2: 21300188
+      Cover 1: 21300156
+      Cover 2: 21300192
+      Cover 3: 21300146
+      Cover 4: 21300106
+      Diamond 1: 21300166
+      Diamond 2: 21300170
+      Diamond 3: 21300172
+      Diamond 4: 21300174
+      Diamond 5: 21300176
+      Diamond 6: 21300178
+      Door: 21300038
+      Elevator: 21300036
+      FX Light 1: 21300164
+      FX Light 2: 21300148
+      Fill: 21300068
+      Icon 1: 21300094
+      Icon 10: 21300086
+      Icon 11: 21300190
+      Icon 12: 21300048
+      Icon 13: 21300050
+      Icon 14: 21300090
+      Icon 15: 21300108
+      Icon 2: 21300092
+      Icon 3: 21300104
+      Icon 4: 21300102
+      Icon 5: 21300096
+      Icon 6: 21300044
+      Icon 7: 21300082
+      Icon 8: 21300042
+      Icon 9: 21300076
+      Icon Ads: 21300056
+      Icon Sell: 21300204
+      Kitchen: 21300220
+      Manager: 21300080
+      Music Off: 21300008
+      Music On: 21300004
+      Pack 1: 21300160
+      Pack 2: 21300162
+      Popup: 21300110
+      Product: 21300066
+      Progress: 21300070
+      Restaurant: 21300064
+      Ribbon: 21300154
+      Road: 21300062
+      Roof: 21300026
+      Sign: 21300060
+      Skill 1: 21300114
+      Skill 10: 21300132
+      Skill 11: 21300136
+      Skill 12: 21300142
+      Skill 13: 21300226
+      Skill 14: 21300212
+      Skill 15: 21300222
+      Skill 16: 21300202
+      Skill 17: 21300214
+      Skill 18: 21300200
+      Skill 19: 21300198
+      Skill 2: 21300116
+      Skill 20: 21300078
+      Skill 21: 21300218
+      Skill 3: 21300120
+      Skill 4: 21300118
+      Skill 5: 21300122
+      Skill 6: 21300126
+      Skill 7: 21300138
+      Skill 8: 21300130
+      Skill 9: 21300128
+      Sky: 21300032
+      Slider 1: 21300084
+      Slider 2: 21300030
+      Slider 3: 21300000
+      Slider 4: 21300002
+      Slider 5: 21300158
+      Slider 6: 21300054
+      Slider 7: 21300052
+      Sound Off: 21300010
+      Sound On: 21300006
+      Table: 21300232
+      Texture: 21300152
+      Tray: 21300074
+      VFXBoost1: 21300098
+      VFXBoost2: 21300236
+      VFXBoost3: 21300196
+      VFXBoost4: 21300216
+      VFXBoost5: 21300228
+      VFXBoost6: 21300206
+      Wall: 21300224
+      Wall Side: 21300040
+  mipmapLimitGroupName: 
   pSDRemoveMatte: 0
-  pSDShowRemoveMatteOption: 0
   userData: 
   assetBundleName: 
   assetBundleVariant: 

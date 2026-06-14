@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 using System.Collections.Generic;
 using System.Collections;
 using UnityEngine.SocialPlatforms;
@@ -6,7 +6,14 @@ using GoogleMobileAds.Api;
 using System;
 using UnityEngine.Advertisements;
 using UnityEngine.UI;
-public class AdsControl : MonoBehaviour
+public enum ShowResult
+{
+    Finished,
+    Skipped,
+    Failed
+}
+
+public class AdsControl : MonoBehaviour, IUnityAdsInitializationListener, IUnityAdsLoadListener, IUnityAdsShowListener
 {
 
 
@@ -18,7 +25,12 @@ public class AdsControl : MonoBehaviour
     InterstitialAd interstitial;
     RewardBasedVideoAd rewardBasedVideo;
     BannerView bannerView;
-    ShowOptions options;
+    
+    private bool isInterstitialLoaded = false;
+    private bool isRewardLoaded = false;
+    private Action<ShowResult> activeShowResultCallback;
+    private Action<bool> activeBoolCallback;
+
     public string AdmobID_Android, AdmobID_IOS, BannerID_Android, BannerID_IOS;
     public string UnityID_Android, UnityID_IOS, UnityZoneID;
 
@@ -41,16 +53,17 @@ public class AdsControl : MonoBehaviour
             HideBanner();
         if (Advertisement.isSupported)
         { // If the platform is supported,
+            string gameId = "";
 #if UNITY_IOS
-			Advertisement.Initialize (UnityID_IOS); // initialize Unity Ads.
+            gameId = UnityID_IOS;
+#elif UNITY_ANDROID
+            gameId = UnityID_Android;
 #endif
-
-#if UNITY_ANDROID
-            Advertisement.Initialize(UnityID_Android); // initialize Unity Ads.
-#endif
+            if (!string.IsNullOrEmpty(gameId))
+            {
+                Advertisement.Initialize(gameId, false, this);
+            }
         }
-        options = new ShowOptions();
-        options.resultCallback = HandleShowResult;
 
         DontDestroyOnLoad(gameObject); //Already done by CBManager
 
@@ -97,10 +110,8 @@ public class AdsControl : MonoBehaviour
             {
                 if (interstitial.IsLoaded())
                     interstitial.Show();
-                else
-                    if (Advertisement.IsReady())
-
-                    Advertisement.Show();  
+                else if (isInterstitialLoaded)
+                    Advertisement.Show("video", this);  
             }
             adsCounter = 0;
         }
@@ -115,17 +126,14 @@ public class AdsControl : MonoBehaviour
 
     public bool GetRewardAvailable()
     {
-        bool avaiable = false;
-        avaiable = Advertisement.IsReady();
-        return avaiable;
+        return isRewardLoaded;
     }
 
     public void ShowRewardVideo()
     {
-
-        Advertisement.Show(UnityZoneID, options);
-
-
+        activeShowResultCallback = HandleShowResult;
+        activeBoolCallback = null;
+        Advertisement.Show(UnityZoneID, this);
     }
 
 
@@ -199,36 +207,111 @@ public class AdsControl : MonoBehaviour
 
     public void PlayCallbackRewardVideo(Action<ShowResult> _action)
     {
-        ShowOptions _options = new ShowOptions();
-        _options.resultCallback = _action;
-        Advertisement.Show(UnityZoneID, _options);
+        activeShowResultCallback = _action;
+        activeBoolCallback = null;
+        Advertisement.Show(UnityZoneID, this);
     }
 
-   public void PlayDelegateRewardVideo(Action<bool> onVideoPlayed)
+    public void PlayDelegateRewardVideo(Action<bool> onVideoPlayed)
     {
-      
-        if (Advertisement.IsReady(UnityZoneID))
+        if (isRewardLoaded)
         {
-            Advertisement.Show(UnityZoneID, new ShowOptions
-            {
-                //pause = true,
-                resultCallback = result => {
-                    switch (result)
-                    {
-                        case (ShowResult.Finished):
-                            onVideoPlayed(true);
-                            break;
-                        case (ShowResult.Failed):
-                            onVideoPlayed(false);
-                            break;
-                        case (ShowResult.Skipped):
-                            onVideoPlayed(false);
-                            break;
-                    }
-                }
-            });
+            activeShowResultCallback = null;
+            activeBoolCallback = onVideoPlayed;
+            Advertisement.Show(UnityZoneID, this);
         }
-        onVideoPlayed(false);
+        else
+        {
+            onVideoPlayed(false);
+        }
+    }
+
+    // IUnityAdsInitializationListener
+    public void OnInitializationComplete()
+    {
+        Advertisement.Load("video", this);
+        Advertisement.Load(UnityZoneID, this);
+    }
+
+    public void OnInitializationFailed(UnityAdsInitializationError error, string message)
+    {
+        Debug.Log($"Unity Ads Initialization Failed: {error.ToString()} - {message}");
+    }
+
+    // IUnityAdsLoadListener
+    public void OnUnityAdsAdLoaded(string adUnitId)
+    {
+        if (adUnitId == UnityZoneID)
+        {
+            isRewardLoaded = true;
+        }
+        else if (adUnitId == "video")
+        {
+            isInterstitialLoaded = true;
+        }
+    }
+
+    public void OnUnityAdsFailedToLoad(string adUnitId, UnityAdsLoadError error, string message)
+    {
+        if (adUnitId == UnityZoneID)
+        {
+            isRewardLoaded = false;
+        }
+        else if (adUnitId == "video")
+        {
+            isInterstitialLoaded = false;
+        }
+    }
+
+    // IUnityAdsShowListener
+    public void OnUnityAdsShowFailure(string adUnitId, UnityAdsShowError error, string message)
+    {
+        if (adUnitId == UnityZoneID)
+        {
+            isRewardLoaded = false;
+            if (activeShowResultCallback != null) activeShowResultCallback(ShowResult.Failed);
+            if (activeBoolCallback != null) activeBoolCallback(false);
+            activeShowResultCallback = null;
+            activeBoolCallback = null;
+        }
+        else if (adUnitId == "video")
+        {
+            isInterstitialLoaded = false;
+        }
+        Advertisement.Load(adUnitId, this);
+    }
+
+    public void OnUnityAdsShowStart(string adUnitId) {}
+    public void OnUnityAdsShowClick(string adUnitId) {}
+
+    public void OnUnityAdsShowComplete(string adUnitId, UnityAdsShowCompletionState showCompletionState)
+    {
+        if (adUnitId == UnityZoneID)
+        {
+            isRewardLoaded = false;
+            if (showCompletionState == UnityAdsShowCompletionState.COMPLETED)
+            {
+                if (activeShowResultCallback != null) activeShowResultCallback(ShowResult.Finished);
+                if (activeBoolCallback != null) activeBoolCallback(true);
+            }
+            else if (showCompletionState == UnityAdsShowCompletionState.SKIPPED)
+            {
+                if (activeShowResultCallback != null) activeShowResultCallback(ShowResult.Skipped);
+                if (activeBoolCallback != null) activeBoolCallback(false);
+            }
+            else
+            {
+                if (activeShowResultCallback != null) activeShowResultCallback(ShowResult.Failed);
+                if (activeBoolCallback != null) activeBoolCallback(false);
+            }
+            activeShowResultCallback = null;
+            activeBoolCallback = null;
+        }
+        else if (adUnitId == "video")
+        {
+            isInterstitialLoaded = false;
+        }
+        Advertisement.Load(adUnitId, this);
     }
 }
 

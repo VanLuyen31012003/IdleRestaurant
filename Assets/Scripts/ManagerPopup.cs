@@ -6,46 +6,6 @@ using UnityEngine.UI;
 
 public class ManagerPopup : Singleton<ManagerPopup>
 {
-	private sealed class _SellConfirm_c__AnonStorey0
-	{
-		internal ManagerProfile targetProfile;
-
-		internal GameObject tag;
-
-		internal ManagerPopup _this;
-
-		internal void __m__0()
-		{
-			double num = Math.Round(this.targetProfile.price / 2.0);
-			Singleton<GameManager>.Instance.SetCash(num);
-			this._this.profile.Remove(this.targetProfile);
-			this.tag.SetActive(false);
-			Notification.instance.Warning("Manager sold for <color=#FBFF00FF>" + GameUtilities.Currencies.Convert(num) + "</color> coin");
-		}
-
-		internal void __m__1()
-		{
-			double num = Math.Round(this.targetProfile.price);
-			Singleton<GameManager>.Instance.SetCash(num);
-			this._this.profile.Remove(this.targetProfile);
-			this.tag.SetActive(false);
-			Notification.instance.Warning("Manager sold for <color=#FBFF00FF>" + GameUtilities.Currencies.Convert(num) + "</color> coin");
-		}
-	}
-
-	private sealed class _HireManager_c__AnonStorey1
-	{
-		internal bool value;
-
-		internal ManagerPopup _this;
-
-		internal void __m__0()
-		{
-			this._this.HireManagerApply(this.value);
-			Tracking.instance.Ads_Impress("reward", "HireManager");
-		}
-	}
-
 	[SerializeField]
 	private Sprite enableSprite;
 
@@ -91,13 +51,10 @@ public class ManagerPopup : Singleton<ManagerPopup>
 
 	private List<GameObject> profileItem;
 
-	private static Predicate<GameObject> __f__am_cache0;
-
 	private void Start()
 	{
 		this.profileItem = new List<GameObject>();
-		GameManager expr_10 = Singleton<GameManager>.Instance;
-		expr_10.onCashChange = (Action<double>)Delegate.Combine(expr_10.onCashChange, new Action<double>(this.OnCashChange));
+		Singleton<GameManager>.Instance.onCashChange += this.OnCashChange;
 		this.targetRestaurant = Singleton<DataManager>.Instance.database.targetRestaurant;
 		this.profile = Singleton<DataManager>.Instance.database.restaurant[this.targetRestaurant].profile;
 		this.tutorial_6.SetActive(!GameManager.IsDoneTutorial(6) && GameManager.IsDoneTutorial(5));

@@ -13,16 +13,6 @@ public class Inventory : Singleton<Inventory>
 		public Sprite sprite;
 	}
 
-	private sealed class _GetItemSprite_c__AnonStorey0
-	{
-		internal int effective;
-
-		internal bool __m__0(Inventory.ItemSprite item)
-		{
-			return item.effective == this.effective;
-		}
-	}
-
 	private List<Item> items;
 
 	public Action onChange;

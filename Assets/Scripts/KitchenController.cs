@@ -41,9 +41,8 @@ public class KitchenController : MonoBehaviour
 
 	public void Initialize()
 	{
-		this.managerController.managerAssign = new Action(this.StartWorking);
-		GameManager expr_1C = Singleton<GameManager>.Instance;
-		expr_1C.onCashChange = (Action<double>)Delegate.Combine(expr_1C.onCashChange, new Action<double>(this.OnCashChange));
+		this.managerController.managerAssign = this.StartWorking;
+		Singleton<GameManager>.Instance.onCashChange += this.OnCashChange;
 		this.transporterController = new List<TransporterController>();
 		this.distance = Vector3.Distance(this.gatheringPoint.position, this.exploitedPoint.position);
 		this.kitchenProperties = Singleton<GameProcess>.Instance.GetKitchenProperties(this.distance, this.kitchenData.floor, this.kitchenData.level, 1f);

@@ -58,116 +58,6 @@ public class BarrierController : MonoBehaviour
 		public GameObject processContent;
 	}
 
-	private sealed class _UnlockKitchenWithDiamond_c__AnonStorey1
-	{
-		internal int diamond;
-
-		internal void __m__0()
-		{
-			Singleton<GameManager>.Instance.UnlockKitchen();
-			Singleton<GameManager>.Instance.SetDiamond(-this.diamond);
-		}
-	}
-
-	private sealed class _UnlockBarrierWithDiamond_c__AnonStorey2
-	{
-		internal int diamond;
-
-		internal BarrierController _this;
-
-		internal void __m__0()
-		{
-			Singleton<GameManager>.Instance.SetDiamond(-this.diamond);
-			this._this.ProcessDone();
-		}
-	}
-
-	private sealed class _Processing_c__Iterator0 : IEnumerator, IDisposable, IEnumerator<object>
-	{
-		internal int _kitchenCount___0;
-
-		internal int _totalDuration___0;
-
-		internal float _percent___1;
-
-		internal BarrierController _this;
-
-		internal object _current;
-
-		internal bool _disposing;
-
-		internal int _PC;
-
-		object IEnumerator<object>.Current
-		{
-			get
-			{
-				return this._current;
-			}
-		}
-
-		object IEnumerator.Current
-		{
-			get
-			{
-				return this._current;
-			}
-		}
-
-		public _Processing_c__Iterator0()
-		{
-		}
-
-		public bool MoveNext()
-		{
-			uint num = (uint)this._PC;
-			this._PC = -1;
-			switch (num)
-			{
-			case 0u:
-				this._this.processRunning = true;
-				this._kitchenCount___0 = Singleton<GameManager>.Instance.kitchenController.Count;
-				this._totalDuration___0 = this._this.config.barrier[this._kitchenCount___0 / this._this.config.kitchen.barrierStep - 1].unlockDuration;
-				break;
-			case 1u:
-				break;
-			default:
-				return false;
-			}
-			if (this._this.barrierData.unlockRemaining > 0)
-			{
-				this._percent___1 = (float)this._this.barrierData.unlockRemaining / (float)this._totalDuration___0;
-				GameUtilities.String.ToText(this._this.process.remainingText, GameUtilities.DateTime.Convert(this._this.barrierData.unlockRemaining));
-				GameUtilities.String.ToText(this._this.process.diamondText, ((int)Math.Ceiling((double)((float)this._this.config.barrier[this._kitchenCount___0 / this._this.config.kitchen.barrierStep - 1].diamondToUnlock * this._percent___1))).ToString());
-				this._this.process.processFillBar.fillAmount = this._percent___1;
-				if (this._this.barrierData.unlockRemaining > 0)
-				{
-					this._this.barrierData.unlockRemaining--;
-				}
-				this._current = this._this.waiting;
-				if (!this._disposing)
-				{
-					this._PC = 1;
-				}
-				return true;
-			}
-			this._this.ProcessDone();
-			this._PC = -1;
-			return false;
-		}
-
-		public void Dispose()
-		{
-			this._disposing = true;
-			this._PC = -1;
-		}
-
-		public void Reset()
-		{
-			throw new NotSupportedException();
-		}
-	}
-
 	private bool processRunning;
 
 	private int targetRestaurant;
@@ -205,10 +95,8 @@ public class BarrierController : MonoBehaviour
 	public void Initialize()
 	{
 		this.waiting = new WaitForSeconds(1f);
-		GameManager expr_15 = Singleton<GameManager>.Instance;
-		expr_15.onCashChange = (Action<double>)Delegate.Combine(expr_15.onCashChange, new Action<double>(this.OnCashChange));
-		GameManager expr_3B = Singleton<GameManager>.Instance;
-		expr_3B.onIdleCashChange = (Action<double>)Delegate.Combine(expr_3B.onIdleCashChange, new Action<double>(this.OnIdleCashChange));
+		Singleton<GameManager>.Instance.onCashChange += this.OnCashChange;
+		Singleton<GameManager>.Instance.onIdleCashChange += this.OnIdleCashChange;
 		this.targetRestaurant = Singleton<GameManager>.Instance.database.targetRestaurant;
 		this.barrierData = Singleton<GameManager>.Instance.database.restaurant[this.targetRestaurant].barrier;
 		this.OfflineTimeCalculate();
@@ -424,9 +312,21 @@ public class BarrierController : MonoBehaviour
 
 	private IEnumerator Processing()
 	{
-		BarrierController._Processing_c__Iterator0 _Processing_c__Iterator = new BarrierController._Processing_c__Iterator0();
-		_Processing_c__Iterator._this = this;
-		return _Processing_c__Iterator;
+		this.processRunning = true;
+		int kitchenCount = Singleton<GameManager>.Instance.kitchenController.Count;
+		int totalDuration = this.config.barrier[kitchenCount / this.config.kitchen.barrierStep - 1].unlockDuration;
+
+		while (this.barrierData.unlockRemaining > 0)
+		{
+			float percent = (float)this.barrierData.unlockRemaining / (float)totalDuration;
+			GameUtilities.String.ToText(this.process.remainingText, GameUtilities.DateTime.Convert(this.barrierData.unlockRemaining));
+			GameUtilities.String.ToText(this.process.diamondText, ((int)Math.Ceiling((double)(this.config.barrier[kitchenCount / this.config.kitchen.barrierStep - 1].diamondToUnlock * percent))).ToString());
+			this.process.processFillBar.fillAmount = percent;
+			this.barrierData.unlockRemaining--;
+			yield return this.waiting;
+		}
+
+		this.ProcessDone();
 	}
 
 	private void OfflineTimeCalculate()

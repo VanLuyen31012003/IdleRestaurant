@@ -77,8 +77,7 @@ public class ElevatorPopup : MonoBehaviour
 
 	private void Start()
 	{
-		GameManager expr_05 = Singleton<GameManager>.Instance;
-		expr_05.onCashChange = (Action<double>)Delegate.Combine(expr_05.onCashChange, new Action<double>(this.OnCashChange));
+		Singleton<GameManager>.Instance.onCashChange += this.OnCashChange;
 	}
 
 	public void SelectUpgradeStep(int value)

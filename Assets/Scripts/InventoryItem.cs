@@ -20,9 +20,8 @@ public class InventoryItem : MonoBehaviour
 	public void Init(Item item)
 	{
 		this.item = item;
-		this.onChange = new Action(this.UpdateItemCount);
-		Inventory expr_1E = Singleton<Inventory>.Instance;
-		expr_1E.onChange = (Action)Delegate.Combine(expr_1E.onChange, this.onChange);
+		this.onChange = this.UpdateItemCount;
+		Singleton<Inventory>.Instance.onChange += this.onChange;
 		this.Display();
 	}
 
@@ -35,8 +34,7 @@ public class InventoryItem : MonoBehaviour
 		BoostManager.instance.AddBoostItem(boost);
 		if (this.item.itemCount == 1)
 		{
-			Inventory expr_5A = Singleton<Inventory>.Instance;
-			expr_5A.onChange = (Action)Delegate.Remove(expr_5A.onChange, this.onChange);
+			Singleton<Inventory>.Instance.onChange -= this.onChange;
 			Singleton<Inventory>.Instance.Remove(this.item);
 			this.item = null;
 			UnityEngine.Object.Destroy(base.gameObject);

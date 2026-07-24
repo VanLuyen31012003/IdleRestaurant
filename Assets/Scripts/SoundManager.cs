@@ -12,16 +12,6 @@ public class SoundManager : Singleton<SoundManager>
 		public AudioClip clip;
 	}
 
-	private sealed class _Play_c__AnonStorey0
-	{
-		internal string audioClip;
-
-		internal bool __m__0(SoundManager.Audio target)
-		{
-			return target.clip.name == this.audioClip;
-		}
-	}
-
 	private SoundSetting soundSetting;
 
 	[SerializeField]

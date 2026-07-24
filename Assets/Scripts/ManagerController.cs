@@ -9,166 +9,6 @@ using UnityEngine.UI;
 
 public class ManagerController : MonoBehaviour
 {
-	private sealed class _Cooldown_c__Iterator0 : IEnumerator, IDisposable, IEnumerator<object>
-	{
-		internal ManagerController _this;
-
-		internal object _current;
-
-		internal bool _disposing;
-
-		internal int _PC;
-
-		object IEnumerator<object>.Current
-		{
-			get
-			{
-				return this._current;
-			}
-		}
-
-		object IEnumerator.Current
-		{
-			get
-			{
-				return this._current;
-			}
-		}
-
-		public _Cooldown_c__Iterator0()
-		{
-		}
-
-		public bool MoveNext()
-		{
-			uint num = (uint)this._PC;
-			this._PC = -1;
-			switch (num)
-			{
-			case 0u:
-				this._this.boostEffect.SetActive(false);
-				break;
-			case 1u:
-				if (this._this.managerProfile.remainingTime > 0)
-				{
-					this._this.managerProfile.remainingTime--;
-				}
-				break;
-			default:
-				return false;
-			}
-			if (this._this.managerProfile.remainingTime > 0)
-			{
-				GameUtilities.String.ToText(this._this.timeText, GameUtilities.DateTime.Convert(this._this.managerProfile.remainingTime));
-				this._current = this._this.waitForSeconds;
-				if (!this._disposing)
-				{
-					this._PC = 1;
-				}
-				return true;
-			}
-			this._this.activeButton.SetActive(true);
-			this._this.managerProfile.state = ManagerState.Ready;
-			GameUtilities.String.ToText(this._this.timeText, string.Empty);
-			this._PC = -1;
-			return false;
-		}
-
-		public void Dispose()
-		{
-			this._disposing = true;
-			this._PC = -1;
-		}
-
-		public void Reset()
-		{
-			throw new NotSupportedException();
-		}
-	}
-
-	private sealed class _Boosting_c__Iterator1 : IEnumerator, IDisposable, IEnumerator<object>
-	{
-		internal ManagerController _this;
-
-		internal object _current;
-
-		internal bool _disposing;
-
-		internal int _PC;
-
-		object IEnumerator<object>.Current
-		{
-			get
-			{
-				return this._current;
-			}
-		}
-
-		object IEnumerator.Current
-		{
-			get
-			{
-				return this._current;
-			}
-		}
-
-		public _Boosting_c__Iterator1()
-		{
-		}
-
-		public bool MoveNext()
-		{
-			uint num = (uint)this._PC;
-			this._PC = -1;
-			switch (num)
-			{
-			case 0u:
-				this._this.boostEffect.SetActive(true);
-				break;
-			case 1u:
-				if (this._this.managerProfile.remainingTime > 0)
-				{
-					this._this.managerProfile.remainingTime--;
-				}
-				break;
-			default:
-				return false;
-			}
-			if (this._this.managerProfile.remainingTime > 0)
-			{
-				GameUtilities.String.ToText(this._this.timeText, GameUtilities.DateTime.Convert(this._this.managerProfile.remainingTime));
-				this._current = this._this.waitForSeconds;
-				if (!this._disposing)
-				{
-					this._PC = 1;
-				}
-				return true;
-			}
-			this._this.boostController.Refresh();
-			this._this.managerProfile.state = ManagerState.Cooldown;
-			this._this.managerProfile.lastActive = DateTime.Now.ToString();
-			this._this.managerProfile.remainingTime = Singleton<GameProcess>.Instance.GetManagerSkillCooldown(this._this.managerProfile.experience, this._this.managerProfile.skill);
-			if (this._this.managerProfile.skill == ManagerSkill.UpgradeCost)
-			{
-				Singleton<GameManager>.Instance.onCashChange(Singleton<GameManager>.Instance.database.cash);
-			}
-			this._this.cooldown = this._this.StartCoroutine(this._this.Cooldown());
-			this._PC = -1;
-			return false;
-		}
-
-		public void Dispose()
-		{
-			this._disposing = true;
-			this._PC = -1;
-		}
-
-		public void Reset()
-		{
-			throw new NotSupportedException();
-		}
-	}
-
 	public Text timeText;
 
 	public Image skillSprite;
@@ -344,15 +184,35 @@ public class ManagerController : MonoBehaviour
 
 	private IEnumerator Cooldown()
 	{
-		ManagerController._Cooldown_c__Iterator0 _Cooldown_c__Iterator = new ManagerController._Cooldown_c__Iterator0();
-		_Cooldown_c__Iterator._this = this;
-		return _Cooldown_c__Iterator;
+		this.boostEffect.SetActive(false);
+		while (this.managerProfile.remainingTime > 0)
+		{
+			GameUtilities.String.ToText(this.timeText, GameUtilities.DateTime.Convert(this.managerProfile.remainingTime));
+			yield return this.waitForSeconds;
+			this.managerProfile.remainingTime--;
+		}
+		this.activeButton.SetActive(true);
+		this.managerProfile.state = ManagerState.Ready;
+		GameUtilities.String.ToText(this.timeText, string.Empty);
 	}
 
 	private IEnumerator Boosting()
 	{
-		ManagerController._Boosting_c__Iterator1 _Boosting_c__Iterator = new ManagerController._Boosting_c__Iterator1();
-		_Boosting_c__Iterator._this = this;
-		return _Boosting_c__Iterator;
+		this.boostEffect.SetActive(true);
+		while (this.managerProfile.remainingTime > 0)
+		{
+			GameUtilities.String.ToText(this.timeText, GameUtilities.DateTime.Convert(this.managerProfile.remainingTime));
+			yield return this.waitForSeconds;
+			this.managerProfile.remainingTime--;
+		}
+		this.boostController.Refresh();
+		this.managerProfile.state = ManagerState.Cooldown;
+		this.managerProfile.lastActive = DateTime.Now.ToString();
+		this.managerProfile.remainingTime = Singleton<GameProcess>.Instance.GetManagerSkillCooldown(this.managerProfile.experience, this.managerProfile.skill);
+		if (this.managerProfile.skill == ManagerSkill.UpgradeCost)
+		{
+			Singleton<GameManager>.Instance.onCashChange(Singleton<GameManager>.Instance.database.cash);
+		}
+		this.cooldown = this.StartCoroutine(this.Cooldown());
 	}
 }

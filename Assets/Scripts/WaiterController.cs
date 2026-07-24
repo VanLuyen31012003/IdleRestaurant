@@ -9,206 +9,6 @@ using UnityEngine.UI;
 
 public class WaiterController : MonoBehaviour
 {
-
-	private sealed class _Transport_c__Iterator0 : IEnumerator, IDisposable, IEnumerator<object>
-	{
-		internal WaiterController _this;
-
-		internal object _current;
-
-		internal bool _disposing;
-
-		internal int _PC;
-
-		object IEnumerator<object>.Current
-		{
-			get
-			{
-				return this._current;
-			}
-		}
-
-		object IEnumerator.Current
-		{
-			get
-			{
-				return this._current;
-			}
-		}
-
-		public _Transport_c__Iterator0()
-		{
-		}
-
-		public bool MoveNext()
-		{
-			uint num = (uint)this._PC;
-			this._PC = -1;
-			switch (num)
-			{
-			case 0u:
-				this._this.isIdle = false;
-				this._this.ApplyAnimationSpeed("Run_01", this._this.restaurantController.boostController.walkingSpeedBoost);
-				this._this.totalCashTransfer = 0.0;
-				break;
-			case 1u:
-				break;
-			case 2u:
-				this._this.cashAfterTransfer = this._this.elevatorController.elevatorData.cash;
-				if (this._this.cashAfterTransfer > 0.0)
-				{
-					this._this.totalCashTransfer = ((this._this.cashAfterTransfer <= this._this.restaurantController.restaurantProperties.loadPerWaiter * (double)this._this.restaurantController.boostController.loadExpansionBoost) ? this._this.cashAfterTransfer : (this._this.restaurantController.restaurantProperties.loadPerWaiter * (double)this._this.restaurantController.boostController.loadExpansionBoost));
-					this._this.elevatorController.SetCash(-this._this.totalCashTransfer);
-					this._this.cashText.gameObject.SetActive(true);
-					GameUtilities.String.ToText(this._this.cashText, GameUtilities.Currencies.Convert(this._this.totalCashTransfer));
-				}
-				this._this.elevatorController.Process(-1);
-				goto IL_383;
-			case 3u:
-				//IL_456:
-				if (this._this.myselfTransform.localPosition != this._this.gatheringPoint)
-				{
-					this._this.myselfTransform.localPosition = Vector3.MoveTowards(this._this.myselfTransform.localPosition, this._this.gatheringPoint, Time.deltaTime * this._this.walkingSpeed);
-					this._current = null;
-					if (!this._disposing)
-					{
-						this._PC = 3;
-					}
-					return true;
-				}
-				if (this._this.totalCashTransfer > 0.0)
-				{
-					this._this.ApplyAnimationSpeed("Idle_02", 1f);
-					this._current = new WaitForSeconds((float)(this._this.totalCashTransfer / (this._this.restaurantController.restaurantProperties.loadingSpeed * (double)this._this.restaurantController.boostController.loadingSpeedBoost)));
-					if (!this._disposing)
-					{
-						this._PC = 4;
-					}
-					return true;
-				}
-				goto IL_547;
-			case 4u:
-				this._this.restaurantController.SetCash(this._this.totalCashTransfer);
-				GameUtilities.String.ToText(this._this.cashText, string.Empty);
-				this._this.cashText.gameObject.SetActive(false);
-				goto IL_547;
-			case 5u:
-				//IL_5F7:
-				if (!(this._this.myselfTransform.localPosition != this._this.restingPosition))
-				{
-					if (!this._this.restaurantController.managerController.hasManager)
-					{
-						this._this.animator.AnimationState.SetAnimation(0, "Idle_01", true);
-						this._this.isIdle = true;
-					}
-					else
-					{
-						this._this.StartCoroutine(this._this.Transport());
-					}
-					this._PC = -1;
-					return false;
-				}
-				this._this.myselfTransform.localPosition = Vector3.MoveTowards(this._this.myselfTransform.localPosition, this._this.restingPosition, Time.deltaTime * this._this.walkingSpeed);
-				this._current = null;
-				if (!this._disposing)
-				{
-					this._PC = 5;
-				}
-				return true;
-			default:
-				return false;
-			}
-			if (this._this.myselfTransform.localPosition != this._this.exploitedPoint)
-			{
-				this._this.myselfTransform.localPosition = Vector3.MoveTowards(this._this.myselfTransform.localPosition, this._this.exploitedPoint, Time.deltaTime * this._this.walkingSpeed);
-				this._current = null;
-				if (!this._disposing)
-				{
-					this._PC = 1;
-				}
-				return true;
-			}
-			this._this.cashBeforeTransfer = this._this.elevatorController.elevatorData.cash;
-			if (this._this.cashBeforeTransfer > 0.0)
-			{
-				this._this.elevatorController.Process(1);
-				this._this.ApplyAnimationSpeed("Idle_02", 1f);
-				this._this.loadingTime = ((this._this.cashBeforeTransfer > this._this.restaurantController.restaurantProperties.loadPerWaiter * (double)this._this.restaurantController.boostController.loadExpansionBoost) ? ((float)(this._this.restaurantController.restaurantProperties.loadPerWaiter * (double)this._this.restaurantController.boostController.loadExpansionBoost / (this._this.restaurantController.restaurantProperties.loadingSpeed * (double)this._this.restaurantController.boostController.loadingSpeedBoost))) : ((float)(this._this.cashBeforeTransfer / (this._this.restaurantController.restaurantProperties.loadingSpeed * (double)this._this.restaurantController.boostController.loadingSpeedBoost))));
-				this._current = new WaitForSeconds(this._this.loadingTime);
-				if (!this._disposing)
-				{
-					this._PC = 2;
-				}
-				return true;
-			}
-			IL_383:
-			this._this.animatorTransform.eulerAngles += Vector3.up * 180f;
-			this._this.ApplyAnimationSpeed((this._this.totalCashTransfer <= 0.0) ? "Run_01" : "Run_02", this._this.restaurantController.boostController.walkingSpeedBoost);
-			goto IL_456;
-			IL_547:
-			this._this.animatorTransform.eulerAngles += Vector3.up * 180f;
-			this._this.ApplyAnimationSpeed("Run_01", this._this.restaurantController.boostController.walkingSpeedBoost);
-			goto IL_5F7;
-
-           IL_456:
-            if (this._this.myselfTransform.localPosition != this._this.gatheringPoint)
-            {
-                this._this.myselfTransform.localPosition = Vector3.MoveTowards(this._this.myselfTransform.localPosition, this._this.gatheringPoint, Time.deltaTime * this._this.walkingSpeed);
-                this._current = null;
-                if (!this._disposing)
-                {
-                    this._PC = 3;
-                }
-                return true;
-            }
-            if (this._this.totalCashTransfer > 0.0)
-            {
-                this._this.ApplyAnimationSpeed("Idle_02", 1f);
-                this._current = new WaitForSeconds((float)(this._this.totalCashTransfer / (this._this.restaurantController.restaurantProperties.loadingSpeed * (double)this._this.restaurantController.boostController.loadingSpeedBoost)));
-                if (!this._disposing)
-                {
-                    this._PC = 4;
-                }
-                return true;
-            }
-            goto IL_547;
-
-          IL_5F7:
-            if (!(this._this.myselfTransform.localPosition != this._this.restingPosition))
-            {
-                if (!this._this.restaurantController.managerController.hasManager)
-                {
-                    this._this.animator.AnimationState.SetAnimation(0, "Idle_01", true);
-                    this._this.isIdle = true;
-                }
-                else
-                {
-                    this._this.StartCoroutine(this._this.Transport());
-                }
-                this._PC = -1;
-                return false;
-            }
-            this._this.myselfTransform.localPosition = Vector3.MoveTowards(this._this.myselfTransform.localPosition, this._this.restingPosition, Time.deltaTime * this._this.walkingSpeed);
-            this._current = null;
-            if (!this._disposing)
-            {
-                this._PC = 5;
-            }
-            return true;
-        }
-
-		public void Dispose()
-		{
-			this._disposing = true;
-			this._PC = -1;
-		}
-
-		public void Reset()
-		{
-			throw new NotSupportedException();
-		}
-	}
-
 	private SkeletonGraphic animator;
 
 	private Vector3 gatheringPoint;
@@ -268,9 +68,72 @@ public class WaiterController : MonoBehaviour
 
 	private IEnumerator Transport()
 	{
-		WaiterController._Transport_c__Iterator0 _Transport_c__Iterator = new WaiterController._Transport_c__Iterator0();
-		_Transport_c__Iterator._this = this;
-		return _Transport_c__Iterator;
+		this.isIdle = false;
+		this.ApplyAnimationSpeed("Run_01", this.restaurantController.boostController.walkingSpeedBoost);
+		this.totalCashTransfer = 0.0;
+
+		while (this.myselfTransform.localPosition != this.exploitedPoint)
+		{
+			this.myselfTransform.localPosition = Vector3.MoveTowards(this.myselfTransform.localPosition, this.exploitedPoint, Time.deltaTime * this.walkingSpeed);
+			yield return null;
+		}
+
+		this.cashBeforeTransfer = this.elevatorController.elevatorData.cash;
+		if (this.cashBeforeTransfer > 0.0)
+		{
+			this.elevatorController.Process(1);
+			this.ApplyAnimationSpeed("Idle_02", 1f);
+			this.loadingTime = ((this.cashBeforeTransfer > this.restaurantController.restaurantProperties.loadPerWaiter * (double)this.restaurantController.boostController.loadExpansionBoost) ? ((float)(this.restaurantController.restaurantProperties.loadPerWaiter * (double)this.restaurantController.boostController.loadExpansionBoost / (this.restaurantController.restaurantProperties.loadingSpeed * (double)this.restaurantController.boostController.loadingSpeedBoost))) : ((float)(this.cashBeforeTransfer / (this.restaurantController.restaurantProperties.loadingSpeed * (double)this.restaurantController.boostController.loadingSpeedBoost))));
+			yield return new WaitForSeconds(this.loadingTime);
+
+			this.cashAfterTransfer = this.elevatorController.elevatorData.cash;
+			if (this.cashAfterTransfer > 0.0)
+			{
+				this.totalCashTransfer = ((this.cashAfterTransfer <= this.restaurantController.restaurantProperties.loadPerWaiter * (double)this.restaurantController.boostController.loadExpansionBoost) ? this.cashAfterTransfer : (this.restaurantController.restaurantProperties.loadPerWaiter * (double)this.restaurantController.boostController.loadExpansionBoost));
+				this.elevatorController.SetCash(-this.totalCashTransfer);
+				this.cashText.gameObject.SetActive(true);
+				GameUtilities.String.ToText(this.cashText, GameUtilities.Currencies.Convert(this.totalCashTransfer));
+			}
+			this.elevatorController.Process(-1);
+		}
+
+		this.animatorTransform.eulerAngles += Vector3.up * 180f;
+		this.ApplyAnimationSpeed((this.totalCashTransfer <= 0.0) ? "Run_01" : "Run_02", this.restaurantController.boostController.walkingSpeedBoost);
+
+		while (this.myselfTransform.localPosition != this.gatheringPoint)
+		{
+			this.myselfTransform.localPosition = Vector3.MoveTowards(this.myselfTransform.localPosition, this.gatheringPoint, Time.deltaTime * this.walkingSpeed);
+			yield return null;
+		}
+
+		if (this.totalCashTransfer > 0.0)
+		{
+			this.ApplyAnimationSpeed("Idle_02", 1f);
+			yield return new WaitForSeconds((float)(this.totalCashTransfer / (this.restaurantController.restaurantProperties.loadingSpeed * (double)this.restaurantController.boostController.loadingSpeedBoost)));
+
+			this.restaurantController.SetCash(this.totalCashTransfer);
+			GameUtilities.String.ToText(this.cashText, string.Empty);
+			this.cashText.gameObject.SetActive(false);
+		}
+
+		this.animatorTransform.eulerAngles += Vector3.up * 180f;
+		this.ApplyAnimationSpeed("Run_01", this.restaurantController.boostController.walkingSpeedBoost);
+
+		while (this.myselfTransform.localPosition != this.restingPosition)
+		{
+			this.myselfTransform.localPosition = Vector3.MoveTowards(this.myselfTransform.localPosition, this.restingPosition, Time.deltaTime * this.walkingSpeed);
+			yield return null;
+		}
+
+		if (!this.restaurantController.managerController.hasManager)
+		{
+			this.animator.AnimationState.SetAnimation(0, "Idle_01", true);
+			this.isIdle = true;
+		}
+		else
+		{
+			this.StartCoroutine(this.Transport());
+		}
 	}
 
 	private void ApplyAnimationSpeed(string clip, float speed = 1f)

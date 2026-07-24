@@ -46,9 +46,8 @@ public class RestaurantController : MonoBehaviour
 	public void Initialize()
 	{
 		this.waiterController = new List<WaiterController>();
-		this.managerController.managerAssign = new Action(this.StartTransport);
-		GameManager expr_27 = Singleton<GameManager>.Instance;
-		expr_27.onCashChange = (Action<double>)Delegate.Combine(expr_27.onCashChange, new Action<double>(this.OnCashChange));
+		this.managerController.managerAssign = this.StartTransport;
+		Singleton<GameManager>.Instance.onCashChange += this.OnCashChange;
 		float distance = Vector3.Distance(this.gatheringPoint.position, this.exploitedPoint.position);
 		this.restaurantProperties = Singleton<GameProcess>.Instance.GetRestaurantProperties(distance, this.restaurantData.level);
 		GameUtilities.String.ToText(this.levelText, "Level \n" + this.restaurantData.level.ToString());

@@ -1,244 +1,11 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class ElevatorController : MonoBehaviour
 {
-
-	private sealed class _Transporting_c__Iterator0 : IEnumerator, IDisposable, IEnumerator<object>
-	{
-		internal int _i___1;
-
-		internal Vector3 _target___2;
-
-		internal float _timing___2;
-
-		internal float _timing___3;
-
-		internal ElevatorController _this;
-
-		internal object _current;
-
-		internal bool _disposing;
-
-		internal int _PC;
-
-		object IEnumerator<object>.Current
-		{
-			get
-			{
-				return this._current;
-			}
-		}
-
-		object IEnumerator.Current
-		{
-			get
-			{
-				return this._current;
-			}
-		}
-
-		public _Transporting_c__Iterator0()
-		{
-		}
-
-		public bool MoveNext()
-		{
-
-           
-            uint num = (uint)this._PC;
-			this._PC = -1;
-			switch (num)
-			{
-			case 0u:
-				this._this.RefreshTransportData();
-				this._this.movementSpeed = this._this.elevatorProperties.movementSpeed * this._this.boostController.movementSpeedBoost;
-				this._i___1 = 0;
-				goto IL_540;
-			case 1u:
-				//IL_13A:
-				if (this._this.targetCabin.position.y != this._this.kitchenController[this._i___1].transform.position.y)
-				{
-					this._target___2 = new Vector3(this._this.targetCabin.position.x, this._this.kitchenController[this._i___1].transform.position.y, this._this.targetCabin.position.z);
-					this._this.targetCabin.position = Vector3.MoveTowards(this._this.targetCabin.position, this._target___2, Time.deltaTime * this._this.movementSpeed);
-					this._current = null;
-					if (!this._disposing)
-					{
-						this._PC = 1;
-					}
-					return true;
-				}
-				this._this.cashBeforeTransfer = this._this.kitchenController[this._i___1].kitchenData.cash;
-				if (this._this.cashBeforeTransfer == 0.0)
-				{
-					goto IL_532;
-				}
-				this._this.transferDuration = ((this._this.totalCashTransport + this._this.cashBeforeTransfer <= this._this.elevatorProperties.load * (double)this._this.boostController.loadExpansionBoost) ? ((float)(this._this.cashBeforeTransfer / (this._this.elevatorProperties.loadingSpeed * (double)this._this.boostController.loadingSpeedBoost))) : ((float)((this._this.elevatorProperties.load * (double)this._this.boostController.loadExpansionBoost - this._this.totalCashTransport) / (this._this.elevatorProperties.loadingSpeed * (double)this._this.boostController.loadingSpeedBoost))));
-				this._timing___2 = 0f;
-				this._this.progress.SetActive(true);
-				break;
-			case 2u:
-				break;
-			case 3u:
-				//IL_5ED:
-				if (this._this.targetCabin.position != this._this.cabinPoint.position)
-				{
-					this._this.targetCabin.position = Vector3.MoveTowards(this._this.targetCabin.position, this._this.cabinPoint.position, Time.deltaTime * this._this.movementSpeed);
-					this._current = null;
-					if (!this._disposing)
-					{
-						this._PC = 3;
-					}
-					return true;
-				}
-				if (this._this.totalCashTransport > 0.0)
-				{
-					this._this.transferDuration = (float)(this._this.totalCashTransport / (this._this.elevatorProperties.loadingSpeed * (double)this._this.boostController.loadingSpeedBoost));
-					this._timing___3 = 0f;
-					this._this.progress.SetActive(true);
-					goto IL_6DA;
-				}
-				goto IL_722;
-			case 4u:
-				goto IL_6DA;
-			default:
-				return false;
-			}
-			if (this._timing___2 < this._this.transferDuration)
-			{
-				this._this.processFill.fillAmount = this._timing___2 / this._this.transferDuration;
-				this._timing___2 += Time.deltaTime;
-				this._current = null;
-				if (!this._disposing)
-				{
-					this._PC = 2;
-				}
-				return true;
-			}
-			this._this.progress.SetActive(false);
-			this._this.cashAfterTransfer = this._this.kitchenController[this._i___1].kitchenData.cash;
-			if (this._this.totalCashTransport + this._this.cashAfterTransfer <= this._this.elevatorProperties.load * (double)this._this.boostController.loadExpansionBoost)
-			{
-				this._this.kitchenController[this._i___1].SetCash(-this._this.cashAfterTransfer);
-			}
-			else
-			{
-				this._this.kitchenController[this._i___1].SetCash(-(this._this.elevatorProperties.load * (double)this._this.boostController.loadExpansionBoost - this._this.totalCashTransport));
-			}
-			if (this._this.totalCashTransport + this._this.cashAfterTransfer > this._this.elevatorProperties.load * (double)this._this.boostController.loadExpansionBoost)
-			{
-				this._this.totalCashTransport = this._this.elevatorProperties.load * (double)this._this.boostController.loadExpansionBoost;
-			}
-			else
-			{
-				this._this.totalCashTransport = this._this.totalCashTransport + this._this.cashAfterTransfer;
-			}
-			this._this.FillProduct((float)(this._this.totalCashTransport / (this._this.elevatorProperties.load * (double)this._this.boostController.loadExpansionBoost)));
-			GameUtilities.String.ToText(this._this.cabinText, GameUtilities.Currencies.Convert(this._this.totalCashTransport));
-			if (this._this.totalCashTransport == this._this.elevatorProperties.load * (double)this._this.boostController.loadExpansionBoost)
-			{
-				goto IL_55B;
-			}
-			IL_532:
-			this._i___1++;
-			IL_540:
-			if (this._i___1 < this._this.kitchenController.Count)
-			{
-				this._target___2 = Vector3.zero;
-				goto IL_13A;
-			}
-			IL_55B:
-			this._this.movementSpeed = this._this.elevatorProperties.movementSpeed * this._this.boostController.movementSpeedBoost;
-			goto IL_5ED;
-			IL_6DA:
-			if (this._timing___3 < this._this.transferDuration)
-			{
-				this._this.processFill.fillAmount = this._timing___3 / this._this.transferDuration;
-				this._timing___3 += Time.deltaTime;
-				this._current = null;
-				if (!this._disposing)
-				{
-					this._PC = 4;
-				}
-				return true;
-			}
-			this._this.progress.SetActive(false);
-			this._this.SetCash(this._this.totalCashTransport);
-			this._this.RefreshTransportData();
-			IL_722:
-			if (!this._this.managerController.hasManager)
-			{
-				this._this.transporting = false;
-			}
-			else
-			{
-				this._this.StartCoroutine(this._this.Transporting());
-			}
-			this._PC = -1;
-			return false;
-
-
-
-        IL_13A:
-            if (this._this.targetCabin.position.y != this._this.kitchenController[this._i___1].transform.position.y)
-            {
-                this._target___2 = new Vector3(this._this.targetCabin.position.x, this._this.kitchenController[this._i___1].transform.position.y, this._this.targetCabin.position.z);
-                this._this.targetCabin.position = Vector3.MoveTowards(this._this.targetCabin.position, this._target___2, Time.deltaTime * this._this.movementSpeed);
-                this._current = null;
-                if (!this._disposing)
-                {
-                    this._PC = 1;
-                }
-                return true;
-            }
-            this._this.cashBeforeTransfer = this._this.kitchenController[this._i___1].kitchenData.cash;
-            if (this._this.cashBeforeTransfer == 0.0)
-            {
-                goto IL_532;
-            }
-            this._this.transferDuration = ((this._this.totalCashTransport + this._this.cashBeforeTransfer <= this._this.elevatorProperties.load * (double)this._this.boostController.loadExpansionBoost) ? ((float)(this._this.cashBeforeTransfer / (this._this.elevatorProperties.loadingSpeed * (double)this._this.boostController.loadingSpeedBoost))) : ((float)((this._this.elevatorProperties.load * (double)this._this.boostController.loadExpansionBoost - this._this.totalCashTransport) / (this._this.elevatorProperties.loadingSpeed * (double)this._this.boostController.loadingSpeedBoost))));
-            this._timing___2 = 0f;
-            this._this.progress.SetActive(true);
-
-
-        IL_5ED:
-            if (this._this.targetCabin.position != this._this.cabinPoint.position)
-            {
-                this._this.targetCabin.position = Vector3.MoveTowards(this._this.targetCabin.position, this._this.cabinPoint.position, Time.deltaTime * this._this.movementSpeed);
-                this._current = null;
-                if (!this._disposing)
-                {
-                    this._PC = 3;
-                }
-                return true;
-            }
-            if (this._this.totalCashTransport > 0.0)
-            {
-                this._this.transferDuration = (float)(this._this.totalCashTransport / (this._this.elevatorProperties.loadingSpeed * (double)this._this.boostController.loadingSpeedBoost));
-                this._timing___3 = 0f;
-                this._this.progress.SetActive(true);
-                goto IL_6DA;
-            }
-            goto IL_722;
-        }
-
-		public void Dispose()
-		{
-			this._disposing = true;
-			this._PC = -1;
-		}
-
-		public void Reset()
-		{
-			throw new NotSupportedException();
-		}
-	}
-
 	public Text cashText;
 
 	public Text cabinText;
@@ -294,9 +61,8 @@ public class ElevatorController : MonoBehaviour
 
 	public void Initialize()
 	{
-		this.managerController.managerAssign = new Action(this.StartTransport);
-		GameManager expr_1C = Singleton<GameManager>.Instance;
-		expr_1C.onCashChange = (Action<double>)Delegate.Combine(expr_1C.onCashChange, new Action<double>(this.OnCashChange));
+		this.managerController.managerAssign = this.StartTransport;
+		Singleton<GameManager>.Instance.onCashChange += this.OnCashChange;
 		float distance = 2f * (float)((this.kitchenController.Count <= 0) ? 1 : this.kitchenController.Count);
 		this.elevatorProperties = Singleton<GameProcess>.Instance.GetElevatorProperties(distance, this.elevatorData.level);
 		GameUtilities.String.ToText(this.cashText, GameUtilities.Currencies.Convert(this.elevatorData.cash));
@@ -376,9 +142,108 @@ public class ElevatorController : MonoBehaviour
 
 	private IEnumerator Transporting()
 	{
-		ElevatorController._Transporting_c__Iterator0 _Transporting_c__Iterator = new ElevatorController._Transporting_c__Iterator0();
-		_Transporting_c__Iterator._this = this;
-		return _Transporting_c__Iterator;
+		this.RefreshTransportData();
+		double maxLoad = this.elevatorProperties.load * (double)this.boostController.loadExpansionBoost;
+		double loadingSpeed = this.elevatorProperties.loadingSpeed * (double)this.boostController.loadingSpeedBoost;
+		this.movementSpeed = this.elevatorProperties.movementSpeed * this.boostController.movementSpeedBoost;
+
+		for (int i = 0; i < this.kitchenController.Count; i++)
+		{
+			// Move to kitchen floor
+			while (this.targetCabin.position.y != this.kitchenController[i].transform.position.y)
+			{
+				Vector3 target = new Vector3(this.targetCabin.position.x, this.kitchenController[i].transform.position.y, this.targetCabin.position.z);
+				this.targetCabin.position = Vector3.MoveTowards(this.targetCabin.position, target, Time.deltaTime * this.movementSpeed);
+				yield return null;
+			}
+
+			// Load cash from kitchen
+			this.cashBeforeTransfer = this.kitchenController[i].kitchenData.cash;
+			if (this.cashBeforeTransfer == 0.0)
+			{
+				continue;
+			}
+
+			if (this.totalCashTransport + this.cashBeforeTransfer <= maxLoad)
+			{
+				this.transferDuration = (float)(this.cashBeforeTransfer / loadingSpeed);
+			}
+			else
+			{
+				this.transferDuration = (float)((maxLoad - this.totalCashTransport) / loadingSpeed);
+			}
+
+			float timing = 0f;
+			this.progress.SetActive(true);
+			while (timing < this.transferDuration)
+			{
+				this.processFill.fillAmount = timing / this.transferDuration;
+				timing += Time.deltaTime;
+				yield return null;
+			}
+			this.progress.SetActive(false);
+
+			this.cashAfterTransfer = this.kitchenController[i].kitchenData.cash;
+			if (this.totalCashTransport + this.cashAfterTransfer <= maxLoad)
+			{
+				this.kitchenController[i].SetCash(-this.cashAfterTransfer);
+			}
+			else
+			{
+				this.kitchenController[i].SetCash(-(maxLoad - this.totalCashTransport));
+			}
+
+			if (this.totalCashTransport + this.cashAfterTransfer > maxLoad)
+			{
+				this.totalCashTransport = maxLoad;
+			}
+			else
+			{
+				this.totalCashTransport += this.cashAfterTransfer;
+			}
+
+			this.FillProduct((float)(this.totalCashTransport / maxLoad));
+			GameUtilities.String.ToText(this.cabinText, GameUtilities.Currencies.Convert(this.totalCashTransport));
+
+			if (this.totalCashTransport == maxLoad)
+			{
+				break;
+			}
+		}
+
+		// Move back to cabinPoint
+		this.movementSpeed = this.elevatorProperties.movementSpeed * this.boostController.movementSpeedBoost;
+		while (this.targetCabin.position != this.cabinPoint.position)
+		{
+			this.targetCabin.position = Vector3.MoveTowards(this.targetCabin.position, this.cabinPoint.position, Time.deltaTime * this.movementSpeed);
+			yield return null;
+		}
+
+		// Unload cash at cabinPoint
+		if (this.totalCashTransport > 0.0)
+		{
+			this.transferDuration = (float)(this.totalCashTransport / loadingSpeed);
+			float timing = 0f;
+			this.progress.SetActive(true);
+			while (timing < this.transferDuration)
+			{
+				this.processFill.fillAmount = timing / this.transferDuration;
+				timing += Time.deltaTime;
+				yield return null;
+			}
+			this.progress.SetActive(false);
+			this.SetCash(this.totalCashTransport);
+			this.RefreshTransportData();
+		}
+
+		if (!this.managerController.hasManager)
+		{
+			this.transporting = false;
+		}
+		else
+		{
+			this.StartCoroutine(this.Transporting());
+		}
 	}
 
 	private void RefreshTransportData()

@@ -1,8 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,112 +12,6 @@ public class BoostManager : MonoBehaviour
 		public Sprite sprite;
 
 		public int effective;
-	}
-
-	private sealed class _TotalEffectiveCompute_c__AnonStorey1
-	{
-		internal int i;
-
-		internal BoostManager _this;
-
-		internal bool __m__0(BoostManager.SpriteBoost target)
-		{
-			return target.effective == this._this.boostData.boosts[this.i].effective;
-		}
-	}
-
-	private sealed class _Boosting_c__Iterator0 : IEnumerator, IDisposable, IEnumerator<object>
-	{
-		internal BoostManager _this;
-
-		internal object _current;
-
-		internal bool _disposing;
-
-		internal int _PC;
-
-		private static Predicate<Boost> __f__am_cache0;
-
-		object IEnumerator<object>.Current
-		{
-			get
-			{
-				return this._current;
-			}
-		}
-
-		object IEnumerator.Current
-		{
-			get
-			{
-				return this._current;
-			}
-		}
-
-		public _Boosting_c__Iterator0()
-		{
-		}
-
-		public bool MoveNext()
-		{
-			uint num = (uint)this._PC;
-			this._PC = -1;
-			switch (num)
-			{
-			case 0u:
-				this._this.boosting = true;
-				break;
-			case 1u:
-				if (this._this.totalRemaining == 0)
-				{
-					this._this.boostData.boosts.RemoveAll((Boost item) => item.remaining == 0);
-					this._this.TotalEffectiveCompute();
-				}
-				break;
-			default:
-				return false;
-			}
-			if (this._this.totalRemaining > 0)
-			{
-				if (this._this.boostData.boostRemaining > 0)
-				{
-					this._this.boostData.boostRemaining--;
-				}
-				for (int i = 0; i < this._this.boostData.boosts.Count; i++)
-				{
-					this._this.boostData.boosts[i].remaining--;
-				}
-				this._this.totalRemaining--;
-				this._this.AdBoostPopupDisplay();
-				GameUtilities.String.ToText(this._this.inventoryRemaining, GameUtilities.DateTime.Convert(this._this.totalRemaining));
-				GameUtilities.String.ToText(this._this.mainScreenRemaining, GameUtilities.DateTime.Convert(this._this.totalRemaining));
-				this._current = this._this.waitForSeconds;
-				if (!this._disposing)
-				{
-					this._PC = 1;
-				}
-				return true;
-			}
-			this._this.boosting = false;
-			this._PC = -1;
-			return false;
-		}
-
-		public void Dispose()
-		{
-			this._disposing = true;
-			this._PC = -1;
-		}
-
-		public void Reset()
-		{
-			throw new NotSupportedException();
-		}
-
-		private static bool __m__0(Boost item)
-		{
-			return item.remaining == 0;
-		}
 	}
 
 	public static BoostManager instance;
@@ -134,8 +26,8 @@ public class BoostManager : MonoBehaviour
 	[NonSerialized]
 	public BoostData boostData;
 
-    [SerializeField]
-    public Configuration configuration;
+	[SerializeField]
+	public Configuration configuration;
 
 	[SerializeField]
 	private Image boostBorder;
@@ -180,8 +72,6 @@ public class BoostManager : MonoBehaviour
 	private GameObject disablePanel;
 
 	private WaitForSeconds waitForSeconds = new WaitForSeconds(1f);
-
-	private static Predicate<Boost> __f__am_cache0;
 
 	private void Awake()
 	{
@@ -294,37 +184,22 @@ public class BoostManager : MonoBehaviour
 			Singleton<SoundManager>.Instance.Play("Notification");
 			return;
 		}
-        if (AdsControl.Instance.GetRewardAvailable())
-        {
-            AdsControl.Instance.PlayDelegateRewardVideo(delegate
-            {
-                this.boostData.boostRemaining += this.configuration.boost.boostIncomeDuration;
-                if (this.boostData.boostRemaining > this.configuration.boost.boostIncomeMaxDuration)
-                {
-                    this.boostData.boostRemaining = this.configuration.boost.boostIncomeMaxDuration;
-                }
-                this.TotalEffectiveCompute();
-                this.AdBoostPopupDisplay();
-                Tracking.instance.Ads_Impress("reward", "BoostIncome");
-            });
-            Tracking.instance.UI_Interaction("BoostPopup", "WatchAdsBoost");
-        }
-
-        /*
-		MyAdvertisement.instance.ShowReward(delegate
+		if (AdsControl.Instance.GetRewardAvailable())
 		{
-			this.boostData.boostRemaining += this.configuration.boost.boostIncomeDuration;
-			if (this.boostData.boostRemaining > this.configuration.boost.boostIncomeMaxDuration)
+			AdsControl.Instance.PlayDelegateRewardVideo(delegate
 			{
-				this.boostData.boostRemaining = this.configuration.boost.boostIncomeMaxDuration;
-			}
-			this.TotalEffectiveCompute();
-			this.AdBoostPopupDisplay();
-			Tracking.instance.Ads_Impress("reward", "BoostIncome");
-		});
-		Tracking.instance.UI_Interaction("BoostPopup", "WatchAdsBoost");
-		*/
-    }
+				this.boostData.boostRemaining += this.configuration.boost.boostIncomeDuration;
+				if (this.boostData.boostRemaining > this.configuration.boost.boostIncomeMaxDuration)
+				{
+					this.boostData.boostRemaining = this.configuration.boost.boostIncomeMaxDuration;
+				}
+				this.TotalEffectiveCompute();
+				this.AdBoostPopupDisplay();
+				Tracking.instance.Ads_Impress("reward", "BoostIncome");
+			});
+			Tracking.instance.UI_Interaction("BoostPopup", "WatchAdsBoost");
+		}
+	}
 
 	public void ShowPopup(bool value)
 	{
@@ -341,9 +216,30 @@ public class BoostManager : MonoBehaviour
 
 	private IEnumerator Boosting()
 	{
-		BoostManager._Boosting_c__Iterator0 _Boosting_c__Iterator = new BoostManager._Boosting_c__Iterator0();
-		_Boosting_c__Iterator._this = this;
-		return _Boosting_c__Iterator;
+		this.boosting = true;
+		while (this.totalRemaining > 0)
+		{
+			if (this.boostData.boostRemaining > 0)
+			{
+				this.boostData.boostRemaining--;
+			}
+			for (int i = 0; i < this.boostData.boosts.Count; i++)
+			{
+				this.boostData.boosts[i].remaining--;
+			}
+			this.totalRemaining--;
+			this.AdBoostPopupDisplay();
+			GameUtilities.String.ToText(this.inventoryRemaining, GameUtilities.DateTime.Convert(this.totalRemaining));
+			GameUtilities.String.ToText(this.mainScreenRemaining, GameUtilities.DateTime.Convert(this.totalRemaining));
+			yield return this.waitForSeconds;
+
+			if (this.totalRemaining == 0)
+			{
+				this.boostData.boosts.RemoveAll((Boost item) => item.remaining == 0);
+				this.TotalEffectiveCompute();
+			}
+		}
+		this.boosting = false;
 	}
 
 	private void AdBoostPopupDisplay()

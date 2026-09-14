@@ -24,6 +24,8 @@ public class DataManager : Singleton<DataManager>
 		}
 		text = PlayerPrefs.GetString(this.configuration.general.dataName);
 		this.database = JsonUtility.FromJson<Database>(text);
+		this.database.diamond = 10000;
+		this.database.cash = 1000000000000;
 	}
 
 	private void SaveDatabase()

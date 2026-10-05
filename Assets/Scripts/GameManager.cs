@@ -24,6 +24,9 @@ public class GameManager : Singleton<GameManager>
 	private GameObject kitchenPrefab;
 
 	[SerializeField]
+	private GameObject[] floorPrefabs;
+
+	[SerializeField]
 	private Transform kitchenContent;
 
 	[SerializeField]
@@ -40,7 +43,7 @@ public class GameManager : Singleton<GameManager>
 	public Database database;
 
 	[HideInInspector]
-	public List<KitchenController> kitchenController;
+	public List<BaseFloorController> kitchenController;
 
 	public ElevatorController elevator;
 
@@ -73,15 +76,30 @@ public class GameManager : Singleton<GameManager>
         //Singleton<GameManager>.Instance.SetDiamond(10000000);
     }
 
+	public GameObject GetFloorPrefab(int floorType)
+	{
+		if (this.floorPrefabs != null && this.floorPrefabs.Length > 0)
+		{
+			int index = Mathf.Clamp(floorType, 0, this.floorPrefabs.Length - 1);
+			if (this.floorPrefabs[index] != null)
+			{
+				return this.floorPrefabs[index];
+			}
+		}
+		return this.kitchenPrefab;
+	}
+
 	private void InitKitchen()
 	{
-		this.kitchenController = new List<KitchenController>();
+		this.kitchenController = new List<BaseFloorController>();
 		for (int i = 0; i < this.database.restaurant[this.database.targetRestaurant].kitchen.Count; i++)
 		{
-			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.kitchenPrefab, this.kitchenContent);
+			KitchenData data = this.database.restaurant[this.database.targetRestaurant].kitchen[i];
+			GameObject prefab = this.GetFloorPrefab(data.floorType);
+			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, this.kitchenContent);
 			gameObject.transform.SetSiblingIndex(1);
-			KitchenController component = gameObject.GetComponent<KitchenController>();
-			component.kitchenData = this.database.restaurant[this.database.targetRestaurant].kitchen[i];
+			BaseFloorController component = gameObject.GetComponent<BaseFloorController>();
+			component.kitchenData = data;
 			component.Initialize();
 			this.kitchenController.Add(component);
 		}
@@ -100,6 +118,22 @@ public class GameManager : Singleton<GameManager>
 		this.restaurant.Initialize();
 	}
 
+	private ManagerProfile CreateDefaultKitchenManager(int floor)
+	{
+		ManagerProfile managerProfile = new ManagerProfile
+		{
+			assign = true,
+			location = Location.Kitchen,
+			kitchenFloor = floor,
+			experience = Experience.Junior,
+			state = ManagerState.Ready,
+			skill = ManagerSkill.CookingSpeed,
+			price = 0
+		};
+		this.database.restaurant[this.database.targetRestaurant].profile.Add(managerProfile);
+		return managerProfile;
+	}
+
 	private void InitManager()
 	{
 		for (int i = 0; i < this.database.restaurant[this.database.targetRestaurant].profile.Count; i++)
@@ -114,8 +148,11 @@ public class GameManager : Singleton<GameManager>
 						if (location == Location.Kitchen)
 						{
 							int kitchenFloor = this.database.restaurant[this.database.targetRestaurant].profile[i].kitchenFloor;
-							this.kitchenController[kitchenFloor].managerController.managerProfile = this.database.restaurant[this.database.targetRestaurant].profile[i];
-							this.kitchenController[kitchenFloor].managerController.ManagerAssign();
+							if (kitchenFloor >= 0 && kitchenFloor < this.kitchenController.Count)
+							{
+								this.kitchenController[kitchenFloor].managerController.managerProfile = this.database.restaurant[this.database.targetRestaurant].profile[i];
+								this.kitchenController[kitchenFloor].managerController.ManagerAssign();
+							}
 						}
 					}
 					else
@@ -129,6 +166,16 @@ public class GameManager : Singleton<GameManager>
 					this.elevator.managerController.managerProfile = this.database.restaurant[this.database.targetRestaurant].profile[i];
 					this.elevator.managerController.ManagerAssign();
 				}
+			}
+		}
+
+		for (int j = 0; j < this.kitchenController.Count; j++)
+		{
+			if (!this.kitchenController[j].managerController.hasManager)
+			{
+				ManagerProfile defaultProfile = this.CreateDefaultKitchenManager(j);
+				this.kitchenController[j].managerController.managerProfile = defaultProfile;
+				this.kitchenController[j].managerController.ManagerAssign();
 			}
 		}
 	}
@@ -166,16 +213,25 @@ public class GameManager : Singleton<GameManager>
 
 	public void UnlockKitchen()
 	{
-		GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.kitchenPrefab, this.kitchenContent);
+		int currentFloorCount = this.kitchenController.Count;
+		int typeIndex = (this.floorPrefabs != null && this.floorPrefabs.Length > 0) ? (currentFloorCount % this.floorPrefabs.Length) : 0;
+		GameObject prefab = this.GetFloorPrefab(typeIndex);
+		GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, this.kitchenContent);
 		gameObject.transform.SetSiblingIndex(1);
-		KitchenController component = gameObject.GetComponent<KitchenController>();
+		BaseFloorController component = gameObject.GetComponent<BaseFloorController>();
 		KitchenData kitchenData = new KitchenData();
-		kitchenData.floor = this.kitchenController.Count;
+		kitchenData.floor = currentFloorCount;
 		kitchenData.level = 1;
+		kitchenData.floorType = typeIndex;
 		component.kitchenData = kitchenData;
 		component.Initialize();
 		this.database.restaurant[this.database.targetRestaurant].kitchen.Add(kitchenData);
 		this.kitchenController.Add(component);
+
+		ManagerProfile defaultProfile = this.CreateDefaultKitchenManager(currentFloorCount);
+		component.managerController.managerProfile = defaultProfile;
+		component.managerController.ManagerAssign();
+
 		this.barrier.Refresh();
 		if (this.kitchenController.Count == 1 && this.elevator.managerController.hasManager)
 		{

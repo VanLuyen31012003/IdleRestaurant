@@ -75162,6 +75162,9 @@ MonoBehaviour:
   shopScreenDiamond: {fileID: 1789880861211680790}
   kitchenPrefab: {fileID: 1789880861211678137, guid: 085feaa3628a4baa91a791ea60af90b7,
     type: 3}
+  floorPrefabs:
+  - {fileID: 1789880861211678137, guid: 085feaa3628a4baa91a791ea60af90b7, type: 3}
+  - {fileID: 1789880861211678137, guid: 15c64f0584222d24391c20260ea88420, type: 3}
   kitchenContent: {fileID: 1789880861211679565}
   barrier: {fileID: 1789880861211680208}
   boostManager: {fileID: 1789880861211680844}

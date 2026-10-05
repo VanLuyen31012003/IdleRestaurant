@@ -3,49 +3,25 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class KitchenController : MonoBehaviour
+public class KitchenController : BaseFloorController
 {
-	public Text cashText;
-
-	public Text levelText;
-
-	public Text floorText;
-
-	public GameObject[] levelUp;
-
 	public GameObject transporterPrefab;
-
-	public Transform kitchenGroup;
-
-	public Transform exploitedPoint;
-
-	public Transform gatheringPoint;
-
-	public BoostController boostController;
-
-	public ManagerController managerController;
 
 	public GameObject tutorial_2;
 
 	public GameObject tutorial_5;
 
-	[NonSerialized]
-	public KitchenData kitchenData;
-
-	[NonSerialized]
-	public KitchenProperties kitchenProperties;
+	private List<TransporterController> transporterController;
 
 	private float distance;
 
-	private List<TransporterController> transporterController;
-
-	public void Initialize()
+	public override void Initialize()
 	{
 		this.managerController.managerAssign = this.StartWorking;
 		Singleton<GameManager>.Instance.onCashChange += this.OnCashChange;
 		this.transporterController = new List<TransporterController>();
 		this.distance = Vector3.Distance(this.gatheringPoint.position, this.exploitedPoint.position);
-		this.kitchenProperties = Singleton<GameProcess>.Instance.GetKitchenProperties(this.distance, this.kitchenData.floor, this.kitchenData.level, 1f);
+		this.kitchenProperties = Singleton<GameProcess>.Instance.GetKitchenProperties(this.distance, this.kitchenData.floor, this.kitchenData.level, this.IncomeMultiplier);
 		GameUtilities.String.ToText(this.floorText, (this.kitchenData.floor + 1).ToString());
 		GameUtilities.String.ToText(this.cashText, GameUtilities.Currencies.Convert(this.kitchenData.cash));
 		GameUtilities.String.ToText(this.levelText, "Level \n" + this.kitchenData.level.ToString());
@@ -59,7 +35,7 @@ public class KitchenController : MonoBehaviour
 		}
 	}
 
-	public void ShowManagerProfile()
+	public override void ShowManagerProfile()
 	{
 		if (!GameManager.IsDoneTutorial(5) && GameManager.IsDoneTutorial(4))
 		{
@@ -70,12 +46,12 @@ public class KitchenController : MonoBehaviour
 		Singleton<ManagerPopup>.Instance.Show(this);
 	}
 
-	public void ShowKitchenProperties()
+	public override void ShowKitchenProperties()
 	{
 		Singleton<KitchenPopup>.Instance.Show(this);
 	}
 
-	public void SetCash(double cash)
+	public override void SetCash(double cash)
 	{
 		this.kitchenData.cash += cash;
 		GameUtilities.String.ToText(this.cashText, GameUtilities.Currencies.Convert(this.kitchenData.cash));
@@ -85,7 +61,7 @@ public class KitchenController : MonoBehaviour
 		}
 	}
 
-	public void StartWorking()
+	private void StartWorking()
 	{
 		for (int i = 0; i < this.transporterController.Count; i++)
 		{
@@ -102,14 +78,23 @@ public class KitchenController : MonoBehaviour
 		}
 	}
 
-	public void Upgrade()
+	public override void Upgrade()
 	{
-		this.kitchenProperties = Singleton<GameProcess>.Instance.GetKitchenProperties(this.distance, this.kitchenData.floor, this.kitchenData.level, 1f);
+		this.kitchenProperties = Singleton<GameProcess>.Instance.GetKitchenProperties(this.distance, this.kitchenData.floor, this.kitchenData.level, this.IncomeMultiplier);
 		if (this.kitchenProperties.transporter > this.transporterController.Count)
 		{
 			this.SetTransporter(this.kitchenProperties.transporter);
 		}
 		GameUtilities.String.ToText(this.levelText, "Level \n" + this.kitchenData.level.ToString());
+	}
+	public override void BtnManager_OnClick()
+	{
+		ShowManagerProfile();
+	}
+
+	public override void BtnTransporter_OnClick()
+	{
+		StartWorking();
 	}
 
 	public void Tutorial_5()

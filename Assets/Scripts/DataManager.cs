@@ -16,7 +16,7 @@ public class DataManager : Singleton<DataManager>
 
 	private void LoadDatabase()
 	{
-		string text = string.Empty;
+		string text = "";
 		if (!PlayerPrefs.HasKey(this.configuration.general.dataName))
 		{
 			text = JsonUtility.ToJson(new Database(this.configuration));

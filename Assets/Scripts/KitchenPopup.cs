@@ -78,7 +78,7 @@ public class KitchenPopup : Singleton<KitchenPopup>
 
 	private int upgradeStep = 1;
 
-	private KitchenController kitchenController;
+	private BaseFloorController kitchenController;
 
 	private void Start()
 	{
@@ -123,7 +123,7 @@ public class KitchenPopup : Singleton<KitchenPopup>
 		Tracking.instance.UI_Interaction("KitchenPopup", "SelectUpgradeStep");
 	}
 
-	public void Show(KitchenController kitchenController)
+	public void Show(BaseFloorController kitchenController)
 	{
 		this.kitchenController = kitchenController;
 		GameUtilities.String.ToText(this.title, "Kitchen Lv." + kitchenController.kitchenData.level.ToString());
@@ -162,7 +162,7 @@ public class KitchenPopup : Singleton<KitchenPopup>
 			}
 			num = Mathf.Clamp(num, 1, Singleton<GameProcess>.Instance.GetMaxLevel(Location.Kitchen) - 1);
 			float distance = Vector3.Distance(kitchenController.gatheringPoint.position, kitchenController.exploitedPoint.position);
-			KitchenProperties kitchenProperties2 = Singleton<GameProcess>.Instance.GetKitchenProperties(distance, kitchenController.kitchenData.floor, kitchenController.kitchenData.level + num, 1f);
+			KitchenProperties kitchenProperties2 = Singleton<GameProcess>.Instance.GetKitchenProperties(distance, kitchenController.kitchenData.floor, kitchenController.kitchenData.level + num, kitchenController.IncomeMultiplier);
 			GameUtilities.String.ToText(this.nextCapacity, "+" + GameUtilities.Currencies.Convert(kitchenProperties2.transporterCapacity - kitchenProperties.transporterCapacity));
 			GameUtilities.String.ToText(this.nextTransporter, "+" + (kitchenProperties2.transporter - kitchenProperties.transporter).ToString());
 			GameUtilities.String.ToText(this.nextSpeed, "+" + Math.Round((double)(kitchenProperties2.walkingSpeed - kitchenProperties.walkingSpeed), 2).ToString());

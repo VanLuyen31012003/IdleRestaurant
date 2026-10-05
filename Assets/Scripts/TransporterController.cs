@@ -20,7 +20,7 @@ public class TransporterController : MonoBehaviour
 
 	private Transform animatorTransform;
 
-	private KitchenController kitchenController;
+	private BaseFloorController kitchenController;
 
 	private float cookingTime;
 
@@ -37,7 +37,7 @@ public class TransporterController : MonoBehaviour
 		this.animatorTransform = this.animator.transform;
 	}
 
-	public void Initialize(KitchenController kitchenController)
+	public void Initialize(BaseFloorController kitchenController)
 	{
 		this.kitchenController = kitchenController;
 		this.restingPosition = base.transform.localPosition;

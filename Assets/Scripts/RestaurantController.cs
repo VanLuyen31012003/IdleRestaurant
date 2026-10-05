@@ -78,8 +78,8 @@ public class RestaurantController : MonoBehaviour
 		gameObject.GetComponent<JumpCash>().Init(cash * (double)this.boostManager.totalEffective);
 		if (!GameManager.IsDoneTutorial(5) && cash > 0.0)
 		{
-			Singleton<GameManager>.Instance.kitchenController[0].Tutorial_5();
-			Tracking.instance.Tutorial_Start("Step5");
+		//	Singleton<GameManager>.Instance.kitchenController[0].Tutorial_5();
+			//Tracking.instance.Tutorial_Start("Step5");
 		}
 	}
 

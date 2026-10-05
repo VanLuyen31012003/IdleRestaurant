@@ -8,4 +8,6 @@ public class KitchenData
 	public int floor;
 
 	public double cash;
+
+	public int floorType;
 }

@@ -31,7 +31,23 @@ public class Restaurant
 		this.dateTime = DateTime.Now.ToString();
 		this.boost = new BoostData();
 		this.kitchen = new List<KitchenData>();
+		this.kitchen.Add(new KitchenData
+		{
+			floor = 0,
+			level = 1,
+			floorType = 0
+		});
 		this.profile = new List<ManagerProfile>();
+		this.profile.Add(new ManagerProfile
+		{
+			assign = true,
+			location = Location.Kitchen,
+			kitchenFloor = 0,
+			experience = Experience.Junior,
+			state = ManagerState.Ready,
+			skill = ManagerSkill.CookingSpeed,
+			price = 0
+		});
 		this.elevator = new ElevatorData
 		{
 			level = 1

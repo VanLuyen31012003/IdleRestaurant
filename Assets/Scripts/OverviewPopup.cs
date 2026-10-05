@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class OverviewPopup : Singleton<OverviewPopup>
 {
-	private List<KitchenController> kitchen;
+	private List<BaseFloorController> kitchen;
 
 	private List<OverviewItem> overviewItem;
 

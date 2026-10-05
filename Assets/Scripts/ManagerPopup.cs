@@ -41,7 +41,7 @@ public class ManagerPopup : Singleton<ManagerPopup>
 
 	private int targetRestaurant;
 
-	private KitchenController kitchen;
+	private BaseFloorController kitchen;
 
 	private ElevatorController elevator;
 
@@ -61,7 +61,7 @@ public class ManagerPopup : Singleton<ManagerPopup>
 		this.hireSpecialButton.SetActive(GameManager.IsDoneTutorial(6));
 	}
 
-	public void Show(KitchenController kitchen)
+	public void Show(BaseFloorController kitchen)
 	{
 		this.kitchen = kitchen;
 		if (kitchen.managerController.hasManager)

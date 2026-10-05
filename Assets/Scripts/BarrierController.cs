@@ -168,14 +168,14 @@ public class BarrierController : MonoBehaviour
 
 	public void UnlockKitchenWithCoin()
 	{
-		int count = Singleton<GameManager>.Instance.kitchenController.Count;
-		double floorPrice = Singleton<GameProcess>.Instance.GetFloorPrice(count);
-		if (Singleton<GameManager>.Instance.database.cash < floorPrice)
+		int count = GameManager.Instance.kitchenController.Count;
+		double floorPrice = GameProcess.Instance.GetFloorPrice(count);
+		if (GameManager.Instance.database.cash < floorPrice)
 		{
 			return;
 		}
-		Singleton<GameManager>.Instance.UnlockKitchen();
-		Singleton<GameManager>.Instance.SetCash(-floorPrice);
+		GameManager.Instance.UnlockKitchen();
+		GameManager.Instance.SetCash(-floorPrice);
 		if (!GameManager.IsDoneTutorial(1))
 		{
 			GameManager.TutorialDone(1);

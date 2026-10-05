@@ -43,7 +43,9 @@ public class ElevatorController : MonoBehaviour
 	public ElevatorProperties elevatorProperties;
 
 	[HideInInspector]
-	public List<KitchenController> kitchenController;
+	public List<BaseFloorController> kitchenController;
+	
+	//public List<KitchenController> kitchenController;
 
 	private int processCount;
 

@@ -15,7 +15,6 @@ public class CafeController : BaseFloorController
 	private float distance;
 
 	private List<TransporterController> transporterController;
-	
 
 	public override void Initialize()
 	{
@@ -34,6 +33,8 @@ public class CafeController : BaseFloorController
 		
 		if (this.tutorial_2 != null) this.tutorial_2.SetActive(!GameManager.IsDoneTutorial(2));
 		if (this.tutorial_5 != null) this.tutorial_5.SetActive(!GameManager.IsDoneTutorial(5) && GameManager.IsDoneTutorial(4));
+
+		this.StartCustomerSpawning();
 	}
 
 	public override void ShowManagerProfile()
@@ -71,12 +72,14 @@ public class CafeController : BaseFloorController
 		StartWorking();
 	}
 
-	private void StartWorking()
+	public override void StartWorking()
 	{
 		if (this.transporterController == null) return;
+		if (this.CurrentCustomer == null || !this.CurrentCustomer.isWaitingForFood) return;
+
 		for (int i = 0; i < this.transporterController.Count; i++)
 		{
-			if (this.transporterController[i].isIdle)
+			if (this.transporterController[i] != null && this.transporterController[i].gameObject.activeInHierarchy && this.transporterController[i].isIdle)
 			{
 				this.transporterController[i].StartWorking();
 			}
@@ -107,7 +110,7 @@ public class CafeController : BaseFloorController
 			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.transporterPrefab, this.kitchenGroup);
 			gameObject.transform.localScale = Vector3.one;
 			gameObject.transform.position = this.gatheringPoint.position + Vector3.right * 0.2f * (float)i;
-			TransporterController component = gameObject.GetComponent<TransporterController>();
+			TransporterController component = gameObject.GetComponentInChildren<TransporterController>();
 			if (component != null)
 			{
 				this.transporterController.Add(component);

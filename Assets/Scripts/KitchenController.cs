@@ -22,22 +22,25 @@ public class KitchenController : BaseFloorController
 		this.transporterController = new List<TransporterController>();
 		this.distance = Vector3.Distance(this.gatheringPoint.position, this.exploitedPoint.position);
 		this.kitchenProperties = Singleton<GameProcess>.Instance.GetKitchenProperties(this.distance, this.kitchenData.floor, this.kitchenData.level, this.IncomeMultiplier);
-		GameUtilities.String.ToText(this.floorText, (this.kitchenData.floor + 1).ToString());
-		GameUtilities.String.ToText(this.cashText, GameUtilities.Currencies.Convert(this.kitchenData.cash));
-		GameUtilities.String.ToText(this.levelText, "Level \n" + this.kitchenData.level.ToString());
-		this.boostController.Refresh();
+		if (this.floorText != null) GameUtilities.String.ToText(this.floorText, (this.kitchenData.floor + 1).ToString());
+		if (this.cashText != null) GameUtilities.String.ToText(this.cashText, GameUtilities.Currencies.Convert(this.kitchenData.cash));
+		if (this.levelText != null) GameUtilities.String.ToText(this.levelText, "Level \n" + this.kitchenData.level.ToString());
+		
+		if (this.boostController != null) this.boostController.Refresh();
 		this.SetTransporter(this.kitchenProperties.transporter);
-		this.tutorial_2.SetActive(!GameManager.IsDoneTutorial(2));
-		this.tutorial_5.SetActive(!GameManager.IsDoneTutorial(5) && GameManager.IsDoneTutorial(4));
-		if (!GameManager.IsDoneTutorial(2))
+		
+		if (this.tutorial_2 != null) this.tutorial_2.SetActive(!GameManager.IsDoneTutorial(2));
+		if (this.tutorial_5 != null) this.tutorial_5.SetActive(!GameManager.IsDoneTutorial(5) && GameManager.IsDoneTutorial(4));
+		if (this.tutorial_2 != null && !GameManager.IsDoneTutorial(2))
 		{
 			Tracking.instance.Tutorial_Start("Step2");
 		}
+		this.StartCustomerSpawning();
 	}
 
 	public override void ShowManagerProfile()
 	{
-		if (!GameManager.IsDoneTutorial(5) && GameManager.IsDoneTutorial(4))
+		if (this.tutorial_5 != null && !GameManager.IsDoneTutorial(5) && GameManager.IsDoneTutorial(4))
 		{
 			GameManager.TutorialDone(5);
 			this.tutorial_5.SetActive(false);
@@ -54,18 +57,21 @@ public class KitchenController : BaseFloorController
 	public override void SetCash(double cash)
 	{
 		this.kitchenData.cash += cash;
-		GameUtilities.String.ToText(this.cashText, GameUtilities.Currencies.Convert(this.kitchenData.cash));
+		if (this.cashText != null) GameUtilities.String.ToText(this.cashText, GameUtilities.Currencies.Convert(this.kitchenData.cash));
 		if (!Singleton<DataManager>.Instance.database.tutorialCompleted.Contains(3))
 		{
 			Singleton<GameManager>.Instance.elevator.Tutorial_3();
 		}
 	}
 
-	private void StartWorking()
+	public override void StartWorking()
 	{
+		if (this.transporterController == null) return;
+		if (this.CurrentCustomer == null || !this.CurrentCustomer.isWaitingForFood) return;
+
 		for (int i = 0; i < this.transporterController.Count; i++)
 		{
-			if (this.transporterController[i].isIdle)
+			if (this.transporterController[i] != null && this.transporterController[i].gameObject.activeInHierarchy && this.transporterController[i].isIdle)
 			{
 				this.transporterController[i].StartWorking();
 			}
@@ -105,15 +111,20 @@ public class KitchenController : BaseFloorController
 
 	private void SetTransporter(int count)
 	{
+		if (this.transporterPrefab == null || this.kitchenGroup == null) return;
 		for (int i = this.transporterController.Count; i < count; i++)
 		{
 			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.transporterPrefab, this.kitchenGroup);
 			gameObject.transform.localScale = Vector3.one;
 			gameObject.transform.position = this.gatheringPoint.position + Vector3.right * 0.2f * (float)i;
-			this.transporterController.Add(gameObject.GetComponent<TransporterController>());
-			this.transporterController[i].Initialize(this);
+			TransporterController component = gameObject.GetComponentInChildren<TransporterController>();
+			if (component != null)
+			{
+				this.transporterController.Add(component);
+				component.Initialize(this);
+			}
 		}
-		if (this.managerController.hasManager)
+		if (this.managerController != null && this.managerController.hasManager)
 		{
 			this.StartWorking();
 		}
@@ -121,9 +132,10 @@ public class KitchenController : BaseFloorController
 
 	private void OnCashChange(double cash)
 	{
+		if (this.levelUp == null || this.levelUp.Length < 3 || this.boostController == null || this.kitchenData == null) return;
 		int maxUpgradeLevel = Singleton<GameProcess>.Instance.GetMaxUpgradeLevel(cash, this.boostController.upgradeCostReduced, this.kitchenData.level, Location.Kitchen, this.kitchenData.floor);
-		this.levelUp[0].SetActive(maxUpgradeLevel > 0);
-		this.levelUp[1].SetActive(maxUpgradeLevel > 9);
-		this.levelUp[2].SetActive(maxUpgradeLevel >= 50);
+		if (this.levelUp[0] != null) this.levelUp[0].SetActive(maxUpgradeLevel > 0);
+		if (this.levelUp[1] != null) this.levelUp[1].SetActive(maxUpgradeLevel > 9);
+		if (this.levelUp[2] != null) this.levelUp[2].SetActive(maxUpgradeLevel >= 50);
 	}
 }

@@ -47,7 +47,11 @@ public class TransporterController : MonoBehaviour
 
 	public void StartWorking()
 	{
-		if (!this.isIdle)
+		if (!this.isIdle || !gameObject.activeInHierarchy)
+		{
+			return;
+		}
+		if (this.kitchenController != null && (this.kitchenController.CurrentCustomer == null || !this.kitchenController.CurrentCustomer.isWaitingForFood))
 		{
 			return;
 		}
@@ -68,6 +72,11 @@ public class TransporterController : MonoBehaviour
 		this.ApplyAnimationSpeed("Idle_02", this.kitchenController.boostController.cookingSpeedBoost);
 		yield return new WaitForSeconds(this.cookingTime);
 		
+		if (this.kitchenController != null && this.kitchenController.CurrentCustomer != null)
+		{
+			this.kitchenController.CurrentCustomer.OnServed();
+		}
+
 		this.animatorTransform.eulerAngles += Vector3.up * 180f;
 		this.ApplyAnimationSpeed("Run_02", this.kitchenController.boostController.walkingSpeedBoost);
 
@@ -94,7 +103,15 @@ public class TransporterController : MonoBehaviour
 		}
 		else
 		{
-			this.StartCoroutine(this.Working());
+			if (this.kitchenController != null && (this.kitchenController.CurrentCustomer == null || !this.kitchenController.CurrentCustomer.isWaitingForFood))
+			{
+				this.ApplyAnimationSpeed("Idle_01", 1f);
+				this.isIdle = true;
+			}
+			else
+			{
+				this.StartCoroutine(this.Working());
+			}
 		}
 	}
 
@@ -114,7 +131,13 @@ public class TransporterController : MonoBehaviour
 				this.walkingSpeed = this.kitchenController.kitchenProperties.walkingSpeed * speed * this.movement;
 			}
 		}
-		this.animator.timeScale = speed;
-		this.animator.AnimationState.SetAnimation(0, clip, true);
+		if (this.animator != null)
+		{
+			this.animator.timeScale = speed;
+			if (this.animator.AnimationState != null)
+			{
+				this.animator.AnimationState.SetAnimation(0, clip, true);
+			}
+		}
 	}
 }

@@ -32,7 +32,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -60, y: -83}
+  m_AnchoredPosition: {x: -147, y: -60}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1789880861211678066
@@ -3265,9 +3265,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: StartWorking
+      - m_Target: {fileID: 4366353485001207812}
+        m_TargetAssemblyTypeName: BakeryController, Assembly-CSharp
+        m_MethodName: BtnTransporter_OnClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -3475,7 +3475,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4185b5c9dd6339a4cb6a3953124601d9, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d16de7ae03a69ba4d93059d08231e6b7, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -6419,9 +6419,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1789880861211678137}
-        m_TargetAssemblyTypeName: 
-        m_MethodName: 
+      - m_Target: {fileID: 4366353485001207812}
+        m_TargetAssemblyTypeName: BakeryController, Assembly-CSharp
+        m_MethodName: BtnManager_OnClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -9108,11 +9108,11 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 1789880861211678242}
-  - component: {fileID: 5717690009903668910}
+  - component: {fileID: 4366353485001207812}
   - component: {fileID: 1789880861211678425}
   - component: {fileID: 1789880861211678441}
   m_Layer: 5
-  m_Name: Cafe
+  m_Name: Bakery
   m_TagString: 
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -9146,7 +9146,7 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: 960, y: 292}
   m_Pivot: {x: 0.5, y: 0}
---- !u!114 &5717690009903668910
+--- !u!114 &4366353485001207812
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -9155,7 +9155,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 1789880861211678137}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 898719d2c279e534f9171e231fcf1caf, type: 3}
+  m_Script: {fileID: 11500000, guid: 6e14263211dc19d4094a5d8d37b0e177, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   btnTransporter: {fileID: 1789880861211678371}
@@ -9164,10 +9164,7 @@ MonoBehaviour:
   cashText: {fileID: 1789880861211678429}
   levelText: {fileID: 1789880861211678382}
   floorText: {fileID: 1789880861211678415}
-  levelUp:
-  - {fileID: 1789880861211678146}
-  - {fileID: 1789880861211678134}
-  - {fileID: 1789880861211678094}
+  levelUp: []
   kitchenGroup: {fileID: 1789880861211678265}
   exploitedPoint: {fileID: 1789880861211678283}
   gatheringPoint: {fileID: 1789880861211678256}
@@ -9177,9 +9174,9 @@ MonoBehaviour:
   - 1
   - 1.25
   - 1.5
-  transporterPrefab: {fileID: 1789880861211678090, guid: 23fa662c68994ec2b1817d6e564e8f51,
-    type: 3}
   customerPrefab: {fileID: 1398574231276102453, guid: 239e10a3c44704644acc0ee8487221ac,
+    type: 3}
+  transporterPrefab: {fileID: 1789880861211678090, guid: 23fa662c68994ec2b1817d6e564e8f51,
     type: 3}
   tutorial_2: {fileID: 1789880861211678109}
   tutorial_5: {fileID: 1789880861211678068}
@@ -9264,7 +9261,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 85, y: -83}
+  m_AnchoredPosition: {x: 167, y: -49}
   m_SizeDelta: {x: 1, y: 1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &1789880861211678139
@@ -9574,8 +9571,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 5717690009903668910}
-        m_TargetAssemblyTypeName: CafeController, Assembly-CSharp
+      - m_Target: {fileID: 4366353485001207812}
+        m_TargetAssemblyTypeName: BakeryController, Assembly-CSharp
         m_MethodName: ShowKitchenProperties
         m_Mode: 1
         m_Arguments:
@@ -9823,7 +9820,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4185b5c9dd6339a4cb6a3953124601d9, type: 3}
+  m_Sprite: {fileID: 21300000, guid: d16de7ae03a69ba4d93059d08231e6b7, type: 3}
   m_Type: 0
   m_PreserveAspect: 1
   m_FillCenter: 1

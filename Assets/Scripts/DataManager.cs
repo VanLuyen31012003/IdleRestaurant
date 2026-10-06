@@ -9,8 +9,9 @@ public class DataManager : Singleton<DataManager>
 	[SerializeField]
 	private Configuration configuration;
 
-	private void Awake()
+	protected override void Awake()
 	{
+		base.Awake();
 		this.LoadDatabase();
 	}
 

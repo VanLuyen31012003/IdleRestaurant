@@ -53,8 +53,46 @@ public class GameManager : Singleton<GameManager>
 
 	public Action<double> onIdleCashChange;
 
-    private void Awake()
+	private List<string> debugLogs = new List<string>();
+
+	public void AddDebugLog(string msg)
+	{
+		if (debugLogs == null) debugLogs = new List<string>();
+		debugLogs.Add(msg);
+		if (debugLogs.Count > 10) debugLogs.RemoveAt(0);
+	}
+
+	private void OnGUI()
+	{
+		GUI.color = Color.yellow;
+		GUI.skin.label.fontSize = 24;
+		GUILayout.BeginArea(new Rect(10, 10, Screen.width - 20, 350));
+		GUILayout.Label("=== DEBUG FLOORS INFO ===");
+		if (kitchenController != null)
+		{
+			GUILayout.Label($"So Tang hien tai: {kitchenController.Count}");
+			for (int i = 0; i < kitchenController.Count; i++)
+			{
+				if (kitchenController[i] != null)
+				{
+					int fType = (kitchenController[i].kitchenData != null) ? kitchenController[i].kitchenData.floorType : -1;
+					GUILayout.Label($"Tang {i + 1}: Name={kitchenController[i].gameObject.name}, Script={kitchenController[i].GetType().Name}, floorType={fType}");
+				}
+			}
+		}
+		if (debugLogs != null)
+		{
+			for (int i = 0; i < debugLogs.Count; i++)
+			{
+				GUILayout.Label(debugLogs[i]);
+			}
+		}
+		GUILayout.EndArea();
+	}
+
+    protected override void Awake()
     {
+        base.Awake();
         Application.targetFrameRate = 60;
     }
 
@@ -78,14 +116,31 @@ public class GameManager : Singleton<GameManager>
 
 	public GameObject GetFloorPrefab(int floorType)
 	{
-		if (this.floorPrefabs != null && this.floorPrefabs.Length > 0)
+		Type[] expectedTypes = new Type[] { typeof(KitchenController), typeof(CafeController), typeof(BakeryController) };
+		string[] prefabNames = new string[] { "Kitchen", "Cafe", "Bakery" };
+
+		if (this.floorPrefabs != null && floorType >= 0 && floorType < this.floorPrefabs.Length && this.floorPrefabs[floorType] != null)
 		{
-			int index = Mathf.Clamp(floorType, 0, this.floorPrefabs.Length - 1);
-			if (this.floorPrefabs[index] != null)
+			if (floorType < expectedTypes.Length && this.floorPrefabs[floorType].GetComponentInChildren(expectedTypes[floorType]) != null)
 			{
-				return this.floorPrefabs[index];
+				return this.floorPrefabs[floorType];
 			}
 		}
+
+		if (floorType >= 0 && floorType < prefabNames.Length)
+		{
+			GameObject resPrefab = Resources.Load<GameObject>("Prefab/" + prefabNames[floorType]);
+			if (resPrefab != null)
+			{
+				return resPrefab;
+			}
+		}
+
+		if (this.floorPrefabs != null && floorType >= 0 && floorType < this.floorPrefabs.Length && this.floorPrefabs[floorType] != null)
+		{
+			return this.floorPrefabs[floorType];
+		}
+
 		return this.kitchenPrefab;
 	}
 
@@ -98,10 +153,17 @@ public class GameManager : Singleton<GameManager>
 			GameObject prefab = this.GetFloorPrefab(data.floorType);
 			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, this.kitchenContent);
 			gameObject.transform.SetSiblingIndex(1);
-			BaseFloorController component = gameObject.GetComponent<BaseFloorController>();
-			component.kitchenData = data;
-			component.Initialize();
-			this.kitchenController.Add(component);
+			BaseFloorController component = gameObject.GetComponentInChildren<BaseFloorController>();
+			if (component != null)
+			{
+				component.kitchenData = data;
+				component.Initialize();
+				this.kitchenController.Add(component);
+			}
+			else
+			{
+				Debug.LogWarning($"[GameManager] Clear Floor #{i}: Cannot find BaseFloorController in prefab {prefab?.name}!");
+			}
 		}
 	}
 
@@ -214,11 +276,17 @@ public class GameManager : Singleton<GameManager>
 	public void UnlockKitchen()
 	{
 		int currentFloorCount = this.kitchenController.Count;
-		int typeIndex = (this.floorPrefabs != null && this.floorPrefabs.Length > 0) ? (currentFloorCount % this.floorPrefabs.Length) : 0;
+		int totalTypes = (this.floorPrefabs != null && this.floorPrefabs.Length > 0) ? this.floorPrefabs.Length : 3;
+		int typeIndex = currentFloorCount % totalTypes;
 		GameObject prefab = this.GetFloorPrefab(typeIndex);
 		GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(prefab, this.kitchenContent);
 		gameObject.transform.SetSiblingIndex(1);
-		BaseFloorController component = gameObject.GetComponent<BaseFloorController>();
+		BaseFloorController component = gameObject.GetComponentInChildren<BaseFloorController>();
+		if (component == null)
+		{
+			Debug.LogWarning($"[GameManager] UnlockKitchen: Cannot find BaseFloorController in prefab {prefab?.name}!");
+			return;
+		}
 		KitchenData kitchenData = new KitchenData();
 		kitchenData.floor = currentFloorCount;
 		kitchenData.level = 1;
@@ -227,6 +295,8 @@ public class GameManager : Singleton<GameManager>
 		component.Initialize();
 		this.database.restaurant[this.database.targetRestaurant].kitchen.Add(kitchenData);
 		this.kitchenController.Add(component);
+
+		AddDebugLog($"[UNLOCK OK] Tang #{currentFloorCount + 1}, typeIndex={typeIndex}, Prefab={prefab?.name}, Script={component?.GetType()?.Name}");
 
 		ManagerProfile defaultProfile = this.CreateDefaultKitchenManager(currentFloorCount);
 		component.managerController.managerProfile = defaultProfile;

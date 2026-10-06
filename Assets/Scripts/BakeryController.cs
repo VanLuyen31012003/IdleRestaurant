@@ -31,6 +31,8 @@ public class BakeryController : BaseFloorController
 		
 		if (this.tutorial_2 != null) this.tutorial_2.SetActive(!GameManager.IsDoneTutorial(2));
 		if (this.tutorial_5 != null) this.tutorial_5.SetActive(!GameManager.IsDoneTutorial(5) && GameManager.IsDoneTutorial(4));
+
+		this.StartCustomerSpawning();
 	}
 
 	public override void ShowManagerProfile()
@@ -69,12 +71,14 @@ public class BakeryController : BaseFloorController
 		StartWorking();
 	}
 
-	private void StartWorking()
+	public override void StartWorking()
 	{
 		if (this.transporterController == null) return;
+		if (this.CurrentCustomer == null || !this.CurrentCustomer.isWaitingForFood) return;
+
 		for (int i = 0; i < this.transporterController.Count; i++)
 		{
-			if (this.transporterController[i].isIdle)
+			if (this.transporterController[i] != null && this.transporterController[i].gameObject.activeInHierarchy && this.transporterController[i].isIdle)
 			{
 				this.transporterController[i].StartWorking();
 			}
@@ -99,17 +103,27 @@ public class BakeryController : BaseFloorController
 
 	private void SetTransporter(int count)
 	{
-		if (this.transporterPrefab == null || this.kitchenGroup == null) return;
+		if (this.transporterPrefab == null || this.kitchenGroup == null)
+		{
+			Debug.LogWarning($"[BakeryController] Không thể tạo Transporter! transporterPrefab: {(this.transporterPrefab == null ? "THIẾU (NULL)" : "OK")}, kitchenGroup: {(this.kitchenGroup == null ? "THIẾU (NULL)" : "OK")}");
+			return;
+		}
+		Debug.Log($"[BakeryController] Đang sinh {count} Transporter...");
 		for (int i = this.transporterController.Count; i < count; i++)
 		{
 			GameObject gameObject = UnityEngine.Object.Instantiate<GameObject>(this.transporterPrefab, this.kitchenGroup);
 			gameObject.transform.localScale = Vector3.one;
 			gameObject.transform.position = this.gatheringPoint.position + Vector3.right * 0.2f * (float)i;
-			TransporterController component = gameObject.GetComponent<TransporterController>();
+			TransporterController component = gameObject.GetComponentInChildren<TransporterController>();
 			if (component != null)
 			{
 				this.transporterController.Add(component);
 				component.Initialize(this);
+				Debug.Log($"[BakeryController] Transporter #1 đã tạo thành công tại vị trí: {gameObject.transform.position}, active: {gameObject.activeInHierarchy}");
+			}
+			else
+			{
+				Debug.LogWarning("[BakeryController] Không tìm thấy TransporterController trên transporterPrefab!");
 			}
 		}
 		if (this.managerController != null && this.managerController.hasManager)

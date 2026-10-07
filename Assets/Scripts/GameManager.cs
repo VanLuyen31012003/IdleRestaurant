@@ -66,8 +66,8 @@ public class GameManager : Singleton<GameManager>
 	{
 		GUI.color = Color.yellow;
 		GUI.skin.label.fontSize = 24;
-		GUILayout.BeginArea(new Rect(10, 10, Screen.width - 20, 350));
-		GUILayout.Label("=== DEBUG FLOORS INFO ===");
+		GUILayout.BeginArea(new Rect(10, 10, Screen.width - 20, Screen.height - 20));
+		GUILayout.Label("=== DEBUG FLOORS INFO v3 ===");
 		if (kitchenController != null)
 		{
 			GUILayout.Label($"So Tang hien tai: {kitchenController.Count}");
@@ -104,7 +104,9 @@ public class GameManager : Singleton<GameManager>
 		GameUtilities.String.ToText(this.mainScreenCash, GameUtilities.Currencies.Convert(this.database.cash));
 		GameUtilities.String.ToText(this.shopScreenCash, GameUtilities.Currencies.Convert(this.database.cash));
 		GameUtilities.String.ToText(this.idleCashText, GameUtilities.Currencies.Convert(this.database.restaurant[this.database.targetRestaurant].idleCash) + "/s");
+		this.AddDebugLog($"[START] saved floors={this.database.restaurant[this.database.targetRestaurant].kitchen.Count}, floorPrefabs={(this.floorPrefabs != null ? this.floorPrefabs.Length : -1)}");
 		this.InitKitchen();
+		this.AddDebugLog($"[START] after InitKitchen, controllers={this.kitchenController.Count}");
 		this.InitElevator();
 		this.InitRestaurant();
 		this.InitManager();
@@ -157,12 +159,21 @@ public class GameManager : Singleton<GameManager>
 			if (component != null)
 			{
 				component.kitchenData = data;
-				component.Initialize();
+				try
+				{
+					component.Initialize();
+				}
+				catch (Exception ex)
+				{
+					this.AddDebugLog($"[INIT EX] {component.GetType().Name}: {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
+				}
 				this.kitchenController.Add(component);
 			}
 			else
 			{
 				Debug.LogWarning($"[GameManager] Clear Floor #{i}: Cannot find BaseFloorController in prefab {prefab?.name}!");
+				this.AddDebugLog($"[INIT FAIL] Tang #{i + 1}: type={data.floorType}, prefab={prefab?.name}, khong co BaseFloorController, MonoBehaviours={gameObject.GetComponentsInChildren<MonoBehaviour>(true).Length}");
+				UnityEngine.Object.Destroy(gameObject);
 			}
 		}
 	}
@@ -276,6 +287,7 @@ public class GameManager : Singleton<GameManager>
 	public void UnlockKitchen()
 	{
 		int currentFloorCount = this.kitchenController.Count;
+		this.AddDebugLog($"[UNLOCK] called, current={currentFloorCount}");
 		int totalTypes = (this.floorPrefabs != null && this.floorPrefabs.Length > 0) ? this.floorPrefabs.Length : 3;
 		int typeIndex = currentFloorCount % totalTypes;
 		GameObject prefab = this.GetFloorPrefab(typeIndex);
@@ -285,6 +297,8 @@ public class GameManager : Singleton<GameManager>
 		if (component == null)
 		{
 			Debug.LogWarning($"[GameManager] UnlockKitchen: Cannot find BaseFloorController in prefab {prefab?.name}!");
+			this.AddDebugLog($"[UNLOCK FAIL] typeIndex={typeIndex}, prefab={prefab?.name}, khong co BaseFloorController, MonoBehaviours={gameObject.GetComponentsInChildren<MonoBehaviour>(true).Length}");
+			UnityEngine.Object.Destroy(gameObject);
 			return;
 		}
 		KitchenData kitchenData = new KitchenData();
@@ -292,7 +306,14 @@ public class GameManager : Singleton<GameManager>
 		kitchenData.level = 1;
 		kitchenData.floorType = typeIndex;
 		component.kitchenData = kitchenData;
-		component.Initialize();
+		try
+		{
+			component.Initialize();
+		}
+		catch (Exception ex)
+		{
+			this.AddDebugLog($"[UNLOCK EX] {component.GetType().Name}: {ex.GetType().Name}: {ex.Message}\n{ex.StackTrace}");
+		}
 		this.database.restaurant[this.database.targetRestaurant].kitchen.Add(kitchenData);
 		this.kitchenController.Add(component);
 
